@@ -10,6 +10,7 @@ export type Product = {
   material: string;
   size: string;
   color: string;
+  stock: number;
 };
 
 export type Category = {
@@ -38,6 +39,7 @@ export const products: Product[] = [
     material: 'Ceramica esmaltada',
     size: '20 cm',
     color: 'Rosa pastel',
+    stock: 8,
   },
   {
     id: 'ceramica-02',
@@ -55,6 +57,7 @@ export const products: Product[] = [
     material: 'Ceramica satinada',
     size: '18 cm',
     color: 'Crema',
+    stock: 6,
   },
   {
     id: 'toallon-01',
@@ -72,6 +75,7 @@ export const products: Product[] = [
     material: 'Algodon',
     size: '140 x 70 cm',
     color: 'Blanco',
+    stock: 12,
   },
   {
     id: 'toallon-02',
@@ -89,6 +93,7 @@ export const products: Product[] = [
     material: 'Algodon peinado',
     size: '150 x 80 cm',
     color: 'Gris claro',
+    stock: 5,
   },
   {
     id: 'toallon-03',
@@ -106,6 +111,7 @@ export const products: Product[] = [
     material: 'Microfibra',
     size: '120 x 60 cm',
     color: 'Azul',
+    stock: 10,
   },
   {
     id: 'repasador-01',
@@ -123,6 +129,7 @@ export const products: Product[] = [
     material: 'Algodon',
     size: '50 x 70 cm',
     color: 'Rojo',
+    stock: 4,
   },
   {
     id: 'repasador-02',
@@ -140,6 +147,7 @@ export const products: Product[] = [
     material: 'Algodon waffle',
     size: '45 x 65 cm',
     color: 'Beige',
+    stock: 7,
   },
   {
     id: 'repasador-03',
@@ -157,5 +165,6 @@ export const products: Product[] = [
     material: 'Algodon ligero',
     size: '45 x 65 cm',
     color: 'Verde',
+    stock: 9,
   },
 ];

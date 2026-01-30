@@ -5,9 +5,14 @@ import type { Product } from '../data/products';
 type ProductDetailProps = {
   products: Product[];
   onAddToCart: (product: Product) => void;
+  stockById: Record<string, number>;
 };
 
-export default function ProductDetail({ products, onAddToCart }: ProductDetailProps) {
+export default function ProductDetail({
+  products,
+  onAddToCart,
+  stockById,
+}: ProductDetailProps) {
   const { id } = useParams();
   const product = products.find((item) => item.id === id);
   const [isZoomOpen, setIsZoomOpen] = useState(false);
@@ -90,6 +95,9 @@ export default function ProductDetail({ products, onAddToCart }: ProductDetailPr
     );
   }
 
+  const stock = stockById[product.id] ?? 0;
+  const isOutOfStock = stock <= 0;
+
   return (
     <main>
       <div className="producto-detalle">
@@ -155,8 +163,9 @@ export default function ProductDetail({ products, onAddToCart }: ProductDetailPr
               className="rounded-full bg-pink-400 px-5 py-2 font-semibold text-white transition hover:bg-pink-500"
               type="button"
               onClick={() => onAddToCart(product)}
+              disabled={isOutOfStock}
             >
-              Agregar al carrito
+              {isOutOfStock ? 'Agotado' : 'Agregar al carrito'}
             </button>
             <Link
               className="rounded-full border-2 border-pink-400 px-5 py-2 font-semibold text-pink-500 transition hover:bg-pink-400 hover:text-white"
@@ -185,6 +194,9 @@ export default function ProductDetail({ products, onAddToCart }: ProductDetailPr
           <div className="h-px w-full bg-black/10" />
           <p className="producto-descripcion">{product.description}</p>
           <p className="producto-precio text-lg font-bold text-pink-600">${product.price}</p>
+          <p className={`text-sm font-semibold ${isOutOfStock ? 'text-red-500' : 'text-pink-500'}`}>
+            {isOutOfStock ? 'Agotado' : `Stock disponible: ${stock}`}
+          </p>
           <p className="text-sm">
             <strong>Categoria:</strong> {product.categoryName}
           </p>
