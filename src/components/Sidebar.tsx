@@ -44,14 +44,14 @@ export default function Sidebar({
       <header>
         <img className="logo" src="/img/Logo/Logo.png" alt="AmiKittyShop" />
       </header>
-      <nav>
+            <nav>
         <ul className="menu">
           {categories.map((category) => {
             const isActive = activeCategoryId === category.id;
-            const iconClass = category.id === 'todos'
-              ? 'bi bi-hand-index-thumb-fill'
-              : 'bi bi-hand-index-thumb';
-            const buttonClass = `boton-menu boton-categoria${isActive ? ' active' : ''}`;
+            const iconClass = category.id === "todos"
+              ? "bi bi-hand-index-thumb-fill"
+              : "bi bi-hand-index-thumb";
+            const buttonClass = `boton-menu boton-categoria${isActive ? " active" : ""}`;
 
             return (
               <li key={category.id}>
@@ -61,7 +61,7 @@ export default function Sidebar({
                   type="button"
                   onClick={() => {
                     onSelectCategory(category.id);
-                    navigate('/productos');
+                    navigate("/productos");
                     onClose();
                   }}
                 >
@@ -74,13 +74,25 @@ export default function Sidebar({
           <li>
             <NavLink
               className={({ isActive }) =>
-                `boton-menu boton-carrito${isActive ? ' active' : ''}`
+                `boton-menu boton-carrito${isActive ? " active" : ""}`
               }
               to="/carrito"
               onClick={onClose}
             >
               <i className="bi bi-cart-fill" />
               Carrito <span id="numerito" className="numerito">{cartCount}</span>
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              className={({ isActive }) =>
+                `boton-menu boton-home${isActive ? " active" : ""}`
+              }
+              to="/"
+              onClick={onClose}
+            >
+              <i className="bi bi-house-door-fill" />
+              Landing
             </NavLink>
           </li>
         </ul>
@@ -127,7 +139,7 @@ export default function Sidebar({
         </label>
       </div>
       <footer>
-        <p className="texto-footer">Â© 2025 Axel Rion</p>
+        <p className="texto-footer">© 2025 Axel Rion</p>
       </footer>
       </aside>
     </>

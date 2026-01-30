@@ -87,7 +87,7 @@ export default function Home() {
                 Cosillas bellas de Hello Kitty
               </h1>
               <p className="text-base sm:text-lg text-gray-600">
-                Descubre nuestra colección de cerámicas, toallones y detalles únicos.
+                Descubre nuestra colecciÃ³n de cerÃ¡micas, toallones y detalles Ãºnicos.
               </p>
               <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
                 <Link
@@ -126,7 +126,7 @@ export default function Home() {
                   className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/80 px-3 py-2 text-pink-500 shadow hover:bg-white"
                   aria-label="Imagen anterior"
                 >
-                  ‹
+                  ï¿½
                 </button>
                 <button
                   type="button"
@@ -134,7 +134,7 @@ export default function Home() {
                   className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white/80 px-3 py-2 text-pink-500 shadow hover:bg-white"
                   aria-label="Imagen siguiente"
                 >
-                  ›
+                  ï¿½
                 </button>
               </div>
               <div className="mt-4 flex items-center justify-center gap-2">
@@ -172,9 +172,9 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="flex flex-col">
-                    <h3 className="text-xl font-semibold text-gray-800 pb-2">detalles únicos</h3>
+                    <h3 className="text-xl font-semibold text-gray-800 pb-2">detalles Ãºnicos</h3>
                     <p className="text-gray-700">
-                      Diseños especiales con inspiración kawaii para tus espacios favoritos.
+                      DiseÃ±os especiales con inspiraciÃ³n kawaii para tus espacios favoritos.
                     </p>
                   </div>
                 </div>
@@ -189,9 +189,9 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="flex flex-col">
-                    <h3 className="text-xl font-semibold text-gray-800 pb-2">Calidad y cariño</h3>
+                    <h3 className="text-xl font-semibold text-gray-800 pb-2">Calidad y cariÃ±o</h3>
                     <p className="text-gray-700">
-                      Selección cuidada de materiales para que cada producto dure más.
+                      SelecciÃ³n cuidada de materiales para que cada producto dure mÃ¡s.
                     </p>
                   </div>
                 </div>
@@ -206,7 +206,7 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="flex flex-col">
-                    <h3 className="text-xl font-semibold text-gray-800 pb-2">Diseño con intención</h3>
+                    <h3 className="text-xl font-semibold text-gray-800 pb-2">DiseÃ±o con intenciÃ³n</h3>
                     <p className="text-gray-700">
                       Estilos modernos y suaves que combinan con tu hogar.
                     </p>
@@ -225,7 +225,7 @@ export default function Home() {
                   <div className="flex flex-col">
                     <h3 className="text-xl font-semibold text-gray-800 pb-2">Amado por clientes</h3>
                     <p className="text-gray-700">
-                      Nos encanta crear cosas bonitas que te acompañen en el día a día.
+                      Nos encanta crear cosas bonitas que te acompaÃ±en en el dÃ­a a dÃ­a.
                     </p>
                   </div>
                 </div>
@@ -383,7 +383,7 @@ export default function Home() {
             </div>
           </div>
           <div className="border-t border-gray-700 mt-8 lg:mt-12 pt-8 text-center text-gray-400">
-            <p className="text-sm lg:text-base">© 2025 AmiKittyShop. All rights reserved.</p>
+            <p className="text-sm lg:text-base">@ 2025 AmiKittyShop. All rights reserved.</p>
           </div>
         </div>
       </footer>
