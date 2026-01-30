@@ -639,14 +639,25 @@ main {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
   }
 
   .header-mobile .logo {
     color: var(--clr-gray);
   }
 
+  .header-mobile__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+  }
+
   .logo-titulo {
     color: var(--clr-gray);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .open-menu,
@@ -671,6 +682,47 @@ main {
     inset: 0;
     background: rgba(0, 0, 0, 0.4);
     z-index: 8;
+  }
+
+  .landing-menu {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: 85vw;
+    max-width: 320px;
+    background: var(--clr-white);
+    box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.35);
+    transform: translateX(110%);
+    opacity: 0;
+    visibility: hidden;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    z-index: 9;
+    padding: 1.5rem 1.25rem;
+  }
+
+  .landing-menu-visible {
+    transform: translateX(0);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .landing-menu-links {
+    margin-top: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .landing-menu-link {
+    color: #374151;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: color 0.2s ease;
+  }
+
+  .landing-menu-link:hover {
+    color: #ec4899;
   }
 
   .filtros-mobile {

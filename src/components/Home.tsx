@@ -11,6 +11,7 @@ export default function Home() {
     [],
   );
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   function goPrev() {
     setActiveIndex((prev) => (prev - 1 + images.length) % images.length);
@@ -29,12 +30,76 @@ export default function Home() {
 
   return (
     <div className="transition-all duration-300 w-full">
+      {isMenuOpen && <div className="menu-overlay" onClick={() => setIsMenuOpen(false)} />}
+      <aside className={`landing-menu${isMenuOpen ? ' landing-menu-visible' : ''}`}>
+        <button
+          className="close-menu"
+          type="button"
+          aria-label="Cerrar menú"
+          onClick={() => setIsMenuOpen(false)}
+        >
+          <i className="bi bi-x" />
+        </button>
+        <nav className="landing-menu-links">
+          <Link
+            to="/"
+            className="landing-menu-link"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Home
+          </Link>
+          <Link
+            to="/productos"
+            className="landing-menu-link"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Productos
+          </Link>
+          <a
+            href="#nosotros"
+            className="landing-menu-link"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Nosotros
+          </a>
+          <a
+            href="#contacto"
+            className="landing-menu-link"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Contact
+          </a>
+        </nav>
+      </aside>
       <header className="bg-white text-gray-900 shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex-shrink-0 flex items-center gap-3">
-              <img src="/img/Logo/Logo.png" alt="Logo" className="h-[80px] w-[80px]" />
-              <span className="text-xl font-bold text-pink-500">AmiKittyShop</span>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div className="flex-shrink-0 flex items-center gap-3">
+                <img src="/img/Logo/Logo.png" alt="Logo" className="h-[80px] w-[80px]" />
+                <span className="text-xl font-bold text-pink-500">AmiKittyShop</span>
+              </div>
+              <div className="flex items-center justify-end gap-3">
+                <div className="hidden md:flex gap-2">
+                  <button className="px-4 py-2 text-pink-500 hover:text-pink-600 border border-pink-200 rounded-lg hover:border-pink-300 transition-colors">
+                    Login
+                  </button>
+                  <button className="px-4 py-2 bg-pink-400 text-white rounded-lg hover:bg-pink-500 transition-colors">
+                    Sign Up
+                  </button>
+                </div>
+                <button
+                  className="md:hidden p-2 text-gray-700 hover:text-pink-500 transition-colors"
+                  type="button"
+                  aria-expanded={isMenuOpen}
+                  aria-controls="landing-mobile-menu"
+                  onClick={() => setIsMenuOpen((prev) => !prev)}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" width="24" height="24" viewBox="0 0 24 24">
+                    <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 5h16M4 12h16M4 19h16" />
+                  </svg>
+                </button>
+              </div>
             </div>
             <nav className="hidden md:flex gap-6">
               <Link to="/" className="text-gray-700 hover:text-pink-500 transition-colors font-bold">
@@ -59,21 +124,6 @@ export default function Home() {
                 Contact
               </a>
             </nav>
-            <div className="flex items-center justify-between gap-3 md:justify-end">
-              <div className="hidden md:flex gap-2">
-                <button className="px-4 py-2 text-pink-500 hover:text-pink-600 border border-pink-200 rounded-lg hover:border-pink-300 transition-colors">
-                  Login
-                </button>
-                <button className="px-4 py-2 bg-pink-400 text-white rounded-lg hover:bg-pink-500 transition-colors">
-                  Sign Up
-                </button>
-              </div>
-              <button className="md:hidden p-2 text-gray-700 hover:text-pink-500 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" width="24" height="24" viewBox="0 0 24 24">
-                  <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 5h16M4 12h16M4 19h16" />
-                </svg>
-              </button>
-            </div>
           </div>
         </div>
       </header>
