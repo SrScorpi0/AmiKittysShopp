@@ -5,14 +5,12 @@ type ProductCardProps = {
   product: Product;
   onAddToCart: (product: Product) => void;
   stock: number;
-  onUpdateStock: (productId: string, value: number) => void;
 };
 
 export default function ProductCard({
   product,
   onAddToCart,
   stock,
-  onUpdateStock,
 }: ProductCardProps) {
   const navigate = useNavigate();
   const isOutOfStock = stock <= 0;
@@ -37,16 +35,6 @@ export default function ProductCard({
           <span className={`producto-stock-badge${isOutOfStock ? ' agotado' : ''}`}>
             {isOutOfStock ? 'Agotado' : `Stock: ${stock}`}
           </span>
-          <label className="producto-stock-label">
-            Stock
-            <input
-              type="number"
-              min="0"
-              value={stock}
-              onChange={(event) => onUpdateStock(product.id, Number(event.target.value))}
-              className="producto-stock-input"
-            />
-          </label>
         </div>
         <button
           className="producto-agregar"

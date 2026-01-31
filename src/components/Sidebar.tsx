@@ -1,7 +1,8 @@
-import { NavLink, useNavigate } from 'react-router-dom';
-import { categories } from '../data/categories';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import type { Category } from '../data/products';
 
 type SidebarProps = {
+  categories: Category[];
   activeCategoryId: string;
   onSelectCategory: (categoryId: string) => void;
   cartCount: number;
@@ -18,6 +19,7 @@ type SidebarProps = {
 };
 
 export default function Sidebar({
+  categories,
   activeCategoryId,
   onSelectCategory,
   cartCount,
@@ -33,6 +35,8 @@ export default function Sidebar({
   onSortByChange,
 }: SidebarProps) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin');
 
   return (
     <>
@@ -52,6 +56,30 @@ export default function Sidebar({
               ? "bi bi-hand-index-thumb-fill"
               : "bi bi-hand-index-thumb";
             const buttonClass = `boton-menu boton-categoria${isActive ? " active" : ""}`;
+
+            if (isAdmin) {
+              const adminMap: Record<string, { label: string; tab: string }> = {
+                ceramicas: { label: 'Categorias', tab: 'categories' },
+                toallones: { label: 'Precio y Stock', tab: 'pricing' },
+                repasadores: { label: 'Productos', tab: 'products' },
+              };
+              const adminConfig = adminMap[category.id];
+              if (!adminConfig) return null;
+              return (
+                <li key={category.id}>
+                  <NavLink
+                    className={({ isActive }) =>
+                      `boton-menu boton-categoria${isActive ? ' active' : ''}`
+                    }
+                    to={`/admin/stock?tab=${adminConfig.tab}`}
+                    onClick={onClose}
+                  >
+                    <i className={iconClass} />
+                    {adminConfig.label}
+                  </NavLink>
+                </li>
+              );
+            }
 
             return (
               <li key={category.id}>

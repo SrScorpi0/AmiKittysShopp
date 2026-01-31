@@ -6,11 +6,15 @@ import Main from './components/Main';
 import Cart from './components/Cart';
 import ProductDetail from './components/ProductDetail';
 import Home from './components/Home';
-import { products, type CartItem, type Product } from './data/products';
+import StockAdmin from './components/StockAdmin';
+import { products, type CartItem, type Product, type Category } from './data/products';
+import { categories as initialCategories } from './data/categories';
 
 const DEFAULT_CATEGORY = 'todos';
 const CART_STORAGE_KEY = 'kittyshop-cart';
 const STOCK_STORAGE_KEY = 'kittyshop-stock';
+const PRODUCTS_STORAGE_KEY = 'kittyshop-products';
+const CATEGORIES_STORAGE_KEY = 'kittyshop-categories';
 
 export default function App() {
   const [activeCategoryId, setActiveCategoryId] = useState(DEFAULT_CATEGORY);
@@ -20,6 +24,28 @@ export default function App() {
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [sortBy, setSortBy] = useState<'recent' | 'price-asc' | 'price-desc'>('recent');
+  const [categories, setCategories] = useState<Category[]>(() => {
+    try {
+      const stored = localStorage.getItem(CATEGORIES_STORAGE_KEY);
+      if (stored) {
+        return JSON.parse(stored) as Category[];
+      }
+    } catch {
+      // ignore invalid data
+    }
+    return initialCategories;
+  });
+  const [catalogProducts, setCatalogProducts] = useState<Product[]>(() => {
+    try {
+      const stored = localStorage.getItem(PRODUCTS_STORAGE_KEY);
+      if (stored) {
+        return JSON.parse(stored) as Product[];
+      }
+    } catch {
+      // ignore invalid data
+    }
+    return products;
+  });
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     try {
       const stored = localStorage.getItem(CART_STORAGE_KEY);
@@ -38,7 +64,7 @@ export default function App() {
     } catch {
       // ignore invalid data
     }
-    return products.reduce<Record<string, number>>((acc, product) => {
+    return catalogProducts.reduce<Record<string, number>>((acc, product) => {
       acc[product.id] = product.stock;
       return acc;
     }, {});
@@ -46,8 +72,8 @@ export default function App() {
 
   const visibleProducts = useMemo(() => {
     const base = activeCategoryId === DEFAULT_CATEGORY
-      ? products
-      : products.filter((product) => product.categoryId === activeCategoryId);
+      ? catalogProducts
+      : catalogProducts.filter((product) => product.categoryId === activeCategoryId);
 
     const query = searchQuery.trim().toLowerCase();
     const min = minPrice ? Number(minPrice) : null;
@@ -67,7 +93,7 @@ export default function App() {
       return [...filtered].sort((a, b) => b.price - a.price);
     }
     return filtered;
-  }, [activeCategoryId, searchQuery, minPrice, maxPrice, sortBy]);
+  }, [activeCategoryId, searchQuery, minPrice, maxPrice, sortBy, catalogProducts]);
 
   const cartCount = useMemo(
     () => cartItems.reduce((acc, item) => acc + item.quantity, 0),
@@ -79,6 +105,14 @@ export default function App() {
   }, [cartItems]);
 
   useEffect(() => {
+    localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(categories));
+  }, [categories]);
+
+  useEffect(() => {
+    localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(catalogProducts));
+  }, [catalogProducts]);
+
+  useEffect(() => {
     localStorage.setItem(STOCK_STORAGE_KEY, JSON.stringify(stockById));
   }, [stockById]);
 
@@ -87,6 +121,25 @@ export default function App() {
       setHasPurchased(false);
     }
   }, [cartItems]);
+
+  useEffect(() => {
+    setCategories((prev) => {
+      const exists = prev.some((category) => category.id === DEFAULT_CATEGORY);
+      if (exists) return prev;
+      return [{ id: DEFAULT_CATEGORY, label: 'Todos los productos' }, ...prev];
+    });
+    setStockById((prev) => {
+      const next: Record<string, number> = {};
+      catalogProducts.forEach((product) => {
+        const current = prev[product.id];
+        next[product.id] = current ?? product.stock ?? 0;
+      });
+      return next;
+    });
+    setCartItems((prev) =>
+      prev.filter((item) => catalogProducts.some((product) => product.id === item.id)),
+    );
+  }, [catalogProducts]);
 
   useEffect(() => {
     setCartItems((prev) =>
@@ -143,11 +196,107 @@ export default function App() {
     setStockById((prev) => ({ ...prev, [productId]: sanitized }));
   }
 
+  function handleUpdateProduct(productId: string, updates: Partial<Product>) {
+    setCatalogProducts((prev) =>
+      prev.map((product) => {
+        if (product.id !== productId) return product;
+        const next = { ...product, ...updates };
+        if (updates.categoryId) {
+          const category = categories.find((item) => item.id === updates.categoryId);
+          if (category) {
+            next.categoryName = category.label;
+          }
+        }
+        return next;
+      }),
+    );
+  }
+
+  function handleDeleteProduct(productId: string) {
+    setCatalogProducts((prev) => prev.filter((product) => product.id !== productId));
+    setStockById((prev) => {
+      const next = { ...prev };
+      delete next[productId];
+      return next;
+    });
+    setCartItems((prev) => prev.filter((item) => item.id !== productId));
+  }
+
+  function handleAddProduct() {
+    const timestamp = Date.now();
+    const defaultCategory = categories.find((category) => category.id === DEFAULT_CATEGORY);
+    const newProduct: Product = {
+      id: `producto-${timestamp}`,
+      title: 'Nuevo producto',
+      image: '/img/Logo/Logo.png',
+      images: ['/img/Logo/Logo.png'],
+      categoryId: DEFAULT_CATEGORY,
+      categoryName: defaultCategory?.label ?? 'Todos los productos',
+      price: 0,
+      description: 'Descripcion pendiente.',
+      material: '-',
+      size: '-',
+      color: '-',
+      stock: 0,
+    };
+    setCatalogProducts((prev) => [newProduct, ...prev]);
+    setStockById((prev) => ({ ...prev, [newProduct.id]: 0 }));
+  }
+
+  function slugifyCategory(value: string) {
+    return value
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+  }
+
+  function handleAddCategory(label: string) {
+    const base = slugifyCategory(label) || 'categoria';
+    let id = base;
+    let count = 1;
+    while (categories.some((category) => category.id === id)) {
+      id = `${base}-${count}`;
+      count += 1;
+    }
+    setCategories((prev) => [...prev, { id, label }]);
+  }
+
+  function handleUpdateCategory(categoryId: string, label: string) {
+    setCategories((prev) =>
+      prev.map((category) => (category.id === categoryId ? { ...category, label } : category)),
+    );
+    setCatalogProducts((prev) =>
+      prev.map((product) =>
+        product.categoryId === categoryId ? { ...product, categoryName: label } : product,
+      ),
+    );
+  }
+
+  function handleDeleteCategory(categoryId: string) {
+    if (categoryId === DEFAULT_CATEGORY) return;
+    const fallback = categories.find((category) => category.id === DEFAULT_CATEGORY);
+    setCategories((prev) => prev.filter((category) => category.id !== categoryId));
+    setCatalogProducts((prev) =>
+      prev.map((product) =>
+        product.categoryId === categoryId
+          ? {
+              ...product,
+              categoryId: DEFAULT_CATEGORY,
+              categoryName: fallback?.label ?? 'Todos los productos',
+            }
+          : product,
+      ),
+    );
+  }
+
   function ShopLayout() {
     return (
       <div className="wrapper">
         <HeaderMobile onOpenMenu={() => setIsMenuOpen(true)} />
         <Sidebar
+          categories={categories}
           activeCategoryId={activeCategoryId}
           onSelectCategory={(id) => {
             setActiveCategoryId(id);
@@ -181,7 +330,6 @@ export default function App() {
               products={visibleProducts}
               onAddToCart={handleAddToCart}
               stockById={stockById}
-              onUpdateStock={handleUpdateStock}
               searchQuery={searchQuery}
               onSearchQueryChange={setSearchQuery}
               minPrice={minPrice}
@@ -209,9 +357,26 @@ export default function App() {
           path="/producto/:id"
           element={
             <ProductDetail
-              products={products}
+              products={catalogProducts}
               onAddToCart={handleAddToCart}
               stockById={stockById}
+            />
+          }
+        />
+        <Route
+          path="/admin/stock"
+          element={
+            <StockAdmin
+              products={catalogProducts}
+              categories={categories}
+              stockById={stockById}
+              onUpdateStock={handleUpdateStock}
+              onUpdateProduct={handleUpdateProduct}
+              onDeleteProduct={handleDeleteProduct}
+              onAddProduct={handleAddProduct}
+              onAddCategory={handleAddCategory}
+              onUpdateCategory={handleUpdateCategory}
+              onDeleteCategory={handleDeleteCategory}
             />
           }
         />

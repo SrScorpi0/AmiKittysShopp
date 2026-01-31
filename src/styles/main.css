@@ -570,6 +570,352 @@ main {
   font-weight: 600;
 }
 
+.stock-admin {
+  overflow-x: auto;
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.admin-tab {
+  border: 0;
+  background: #f3f4f6;
+  color: #374151;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.admin-tab.active {
+  background: var(--clr-main);
+  color: var(--clr-white);
+}
+
+.admin-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.admin-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-section-header h3 {
+  font-size: 1.2rem;
+  color: #111827;
+}
+
+.admin-inline-form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.admin-toolbar {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.stock-admin-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.stock-admin-add {
+  border: 0;
+  background: var(--clr-main);
+  color: var(--clr-white);
+  padding: 0.6rem 1rem;
+  border-radius: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.stock-admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--clr-white);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.stock-admin-table th,
+.stock-admin-table td {
+  padding: 0.85rem;
+  text-align: left;
+  border-bottom: 1px solid var(--clr-gray);
+  color: #374151;
+}
+
+.stock-admin-table th {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+}
+
+.stock-admin-product {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.stock-admin-product img {
+  width: 52px;
+  height: 52px;
+  border-radius: 0.75rem;
+  object-fit: cover;
+}
+
+.stock-admin-sku {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.stock-admin-input {
+  width: 90px;
+  border-radius: 0.5rem;
+  border: 1px solid var(--clr-gray);
+  padding: 0.35rem 0.5rem;
+  font-family: inherit;
+}
+
+.stock-admin-text {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid var(--clr-gray);
+  padding: 0.35rem 0.5rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.stock-admin-images {
+  min-width: 240px;
+}
+
+.stock-admin-image-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+}
+
+.stock-admin-image-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #f3f4f6;
+  border-radius: 0.5rem;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.75rem;
+}
+
+.stock-admin-image-chip button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: #ef4444;
+  font-size: 0.9rem;
+}
+
+.stock-admin-image-add {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.stock-admin-image-add button {
+  border: 0;
+  background: #ec4899;
+  color: white;
+  border-radius: 0.5rem;
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
+}
+
+.stock-admin-delete {
+  border: 0;
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.admin-product-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admin-product-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 1rem;
+  background: #f9fafb;
+  border: 1px solid var(--clr-gray);
+  cursor: pointer;
+}
+
+.admin-product-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.admin-product-info img {
+  width: 56px;
+  height: 56px;
+  border-radius: 0.75rem;
+  object-fit: cover;
+}
+
+.admin-product-actions {
+  display: flex;
+  gap: 0.5rem;
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+.admin-product-actions button {
+  border: 0;
+  background: var(--clr-main);
+  color: var(--clr-white);
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.admin-product-actions .stock-admin-delete {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.admin-product-editor {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  background: #fff;
+  border: 1px solid var(--clr-gray);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.admin-editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-editor-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.admin-editor-header button {
+  border: 0;
+  background: #f3f4f6;
+  color: #374151;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.admin-editor-content {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1.5rem;
+}
+
+.admin-editor-preview img {
+  width: 100%;
+  border-radius: 1rem;
+  object-fit: cover;
+  max-height: 260px;
+}
+
+.admin-editor-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admin-editor-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: #374151;
+}
+
+.admin-editor-images {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.admin-editor-images h5 {
+  font-size: 0.95rem;
+  color: #374151;
+}
+
+.admin-editor-hint {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+.admin-hint {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+@media screen and (max-width: 900px) {
+  .admin-editor-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stock-admin-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.stock-admin-status.agotado {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
 .header-mobile {
   display: none;
 }
@@ -579,6 +925,10 @@ main {
 }
 
 .menu-overlay {
+  display: none;
+}
+
+.landing-menu {
   display: none;
 }
 
@@ -727,6 +1077,7 @@ main {
   }
 
   .landing-menu {
+    display: block;
     position: fixed;
     top: 0;
     right: 0;

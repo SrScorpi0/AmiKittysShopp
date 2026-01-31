@@ -5,7 +5,6 @@ type MainProps = {
   products: Product[];
   onAddToCart: (product: Product) => void;
   stockById: Record<string, number>;
-  onUpdateStock: (productId: string, value: number) => void;
   searchQuery: string;
   onSearchQueryChange: (value: string) => void;
   minPrice: string;
@@ -20,7 +19,6 @@ export default function Main({
   products,
   onAddToCart,
   stockById,
-  onUpdateStock,
   searchQuery,
   onSearchQueryChange,
   minPrice,
@@ -93,7 +91,6 @@ export default function Main({
             product={product}
             onAddToCart={onAddToCart}
             stock={stockById[product.id] ?? 0}
-            onUpdateStock={onUpdateStock}
           />
         ))}
       </div>
