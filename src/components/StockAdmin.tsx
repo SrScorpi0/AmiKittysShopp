@@ -38,7 +38,6 @@ export default function StockAdmin({
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
-  const [newImageById, setNewImageById] = useState<Record<string, string>>({});
   const [priceDraftById, setPriceDraftById] = useState<Record<string, number>>({});
   const [stockDraftById, setStockDraftById] = useState<Record<string, number>>({});
   const [productDraft, setProductDraft] = useState<Product | null>(null);
@@ -163,21 +162,6 @@ export default function StockAdmin({
       description: productDraft.description,
       images: productDraft.images,
     });
-  }
-
-  function handleAddImage(productId: string) {
-    const value = newImageById[productId]?.trim();
-    if (!value) return;
-    const product = products.find((item) => item.id === productId);
-    const images = product?.images?.length ? product.images : [];
-    onUpdateProduct(productId, { images: [...images, value] });
-    setNewImageById((prev) => ({ ...prev, [productId]: '' }));
-  }
-
-  function handleRemoveImage(productId: string, src: string) {
-    const product = products.find((item) => item.id === productId);
-    const images = product?.images?.length ? product.images : [];
-    onUpdateProduct(productId, { images: images.filter((item) => item !== src) });
   }
 
   function handleDraftAddImage() {
