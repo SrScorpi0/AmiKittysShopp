@@ -38,7 +38,6 @@ model Order {
   phone     String
   address   String
   message   String?
-  notes     String?
   status    String      @default("pending")
   items     OrderItem[]
   createdAt DateTime    @default(now())

@@ -27,7 +27,6 @@ export default function Cart({
     phone: false,
     address: false,
   });
-  const [notes, setNotes] = useState('');
 
   const phoneError = useMemo(() => {
     if (!touched.phone) return '';
@@ -49,11 +48,10 @@ export default function Cart({
     const stored = localStorage.getItem('kittyshop-checkout');
     if (stored) {
       try {
-        const data = JSON.parse(stored) as { phone?: string; address?: string; message?: string; notes?: string };
+        const data = JSON.parse(stored) as { phone?: string; address?: string; message?: string };
         setPhone(data.phone || '');
         setAddress(data.address || '');
         setMessage(data.message || '');
-        setNotes(data.notes || '');
       } catch {
         // ignore invalid data
       }
@@ -63,9 +61,9 @@ export default function Cart({
   useEffect(() => {
     localStorage.setItem(
       'kittyshop-checkout',
-      JSON.stringify({ phone, address, message, notes }),
+      JSON.stringify({ phone, address, message }),
     );
-  }, [phone, address, message, notes]);
+  }, [phone, address, message]);
 
   async function handleSubmitOrder() {
     if (!canSubmit) {
@@ -84,7 +82,6 @@ export default function Cart({
           phone,
           address,
           message,
-          notes,
         }),
       });
 
@@ -98,7 +95,6 @@ export default function Cart({
       setPhone('');
       setAddress('');
       setMessage('');
-      setNotes('');
       onPurchase();
     } catch (error) {
       setStatus('error');
@@ -197,15 +193,6 @@ export default function Cart({
                   value={message}
                   onChange={(event) => setMessage(event.target.value)}
                   placeholder="Algo que quieras agregar"
-                />
-              </label>
-              <label>
-                Notas (opcional)
-                <textarea
-                  rows={2}
-                  value={notes}
-                  onChange={(event) => setNotes(event.target.value)}
-                  placeholder="Indicaciones extra"
                 />
               </label>
             </div>

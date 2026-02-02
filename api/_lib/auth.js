@@ -6,7 +6,7 @@ export function signAdminToken(payload) {
   if (!JWT_SECRET) {
     throw new Error('JWT_SECRET is not set');
   }
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: '4h' });
 }
 
 export function requireAdmin(req) {

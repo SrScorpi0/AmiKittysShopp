@@ -1,5 +1,5 @@
-﻿import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import type { Category, Product } from '../data/products';
 
 type StockAdminProps = {
@@ -31,7 +31,6 @@ type AdminOrder = {
   phone: string;
   address: string;
   message?: string;
-  notes?: string;
   status: string;
   createdAt: string;
   items: AdminOrderItem[];
@@ -52,11 +51,11 @@ export default function StockAdmin({
   onDeleteCategory,
 }: StockAdminProps) {
   const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<AdminTab>('pricing');
   const [adminToken, setAdminToken] = useState(() => localStorage.getItem(ADMIN_TOKEN_KEY) || '');
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-  const [loginError, setLoginError] = useState('');
+  const [adminLoading, setAdminLoading] = useState(false);
 
   const [newCategoryLabel, setNewCategoryLabel] = useState('');
   const [pendingCategoryAdds, setPendingCategoryAdds] = useState<string[]>([]);
@@ -80,6 +79,7 @@ export default function StockAdmin({
   const [ordersStatusFilter, setOrdersStatusFilter] = useState('all');
   const [orderStatusDraftById, setOrderStatusDraftById] = useState<Record<string, string>>({});
   const [orderStatusEditingId, setOrderStatusEditingId] = useState<string | null>(null);
+  const [ordersCsvUrl, setOrdersCsvUrl] = useState('');
 
   const filteredProducts = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -98,6 +98,30 @@ export default function StockAdmin({
       setActiveTab(tab);
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    async function verifyToken() {
+      if (!adminToken) return;
+      setAdminLoading(true);
+      try {
+        const response = await fetch('/api/admin/me', {
+          headers: { Authorization: `Bearer ${adminToken}` },
+        });
+        if (!response.ok) {
+          throw new Error('Sesion expirada');
+        }
+      } catch (error) {
+        localStorage.removeItem(ADMIN_TOKEN_KEY);
+        setAdminToken('');
+        if (location.pathname !== '/admin/login') {
+          navigate('/admin/login', { replace: true });
+        }
+      } finally {
+        setAdminLoading(false);
+      }
+    }
+    verifyToken();
+  }, [adminToken, location.pathname, navigate]);
 
   useEffect(() => {
     if (!selectedProductId) return;
@@ -167,6 +191,7 @@ export default function StockAdmin({
             return acc;
           }, {} as Record<string, string>),
         );
+        setOrdersCsvUrl('');
       } catch (error) {
         setOrdersError(error instanceof Error ? error.message : 'Error al cargar pedidos');
       } finally {
@@ -175,6 +200,53 @@ export default function StockAdmin({
     }
     loadOrders();
   }, [adminToken, activeTab, ordersDateFrom, ordersDateTo, ordersStatusFilter]);
+
+  function handleExportOrdersCsv() {
+    if (!orders.length) return;
+    const rows = [
+      [
+        'id',
+        'fecha',
+        'telefono',
+        'direccion',
+        'total',
+        'estado',
+        'mensaje',
+        'items',
+      ],
+      ...orders.map((order) => [
+        order.id,
+        new Date(order.createdAt).toISOString(),
+        order.phone,
+        order.address,
+        order.total,
+        order.status,
+        order.message || '',
+        order.items.map((item) => `${item.title} x${item.quantity}`).join(' | '),
+      ]),
+    ];
+
+    const csv = rows
+      .map((row) =>
+        row
+          .map((value) => {
+            const text = String(value ?? '');
+            if (/[",\n]/.test(text)) {
+              return `"${text.replace(/"/g, '""')}"`;
+            }
+            return text;
+          })
+          .join(','),
+      )
+      .join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    setOrdersCsvUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return url;
+    });
+  }
 
   async function handleUpdateOrderStatus(orderId: string) {
     const status = orderStatusDraftById[orderId];
@@ -198,30 +270,6 @@ export default function StockAdmin({
       setOrderStatusEditingId(null);
     } catch (error) {
       setOrdersError(error instanceof Error ? error.message : 'Error al actualizar estado');
-    }
-  }
-
-  async function handleLogin(event: FormEvent) {
-    event.preventDefault();
-    setLoginError('');
-    try {
-      const response = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
-      });
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data?.error || 'Error al iniciar sesion');
-      }
-      const data = await response.json();
-      const token = data?.token || '';
-      if (!token) throw new Error('Token invalido');
-      localStorage.setItem(ADMIN_TOKEN_KEY, token);
-      setAdminToken(token);
-      setLoginPassword('');
-    } catch (error) {
-      setLoginError(error instanceof Error ? error.message : 'Error al iniciar sesion');
     }
   }
 
@@ -309,35 +357,11 @@ export default function StockAdmin({
     <main>
       <h2 className="titulo-principal">Administrar stock</h2>
 
-      {!adminToken && (
-        <section className="admin-login">
-          <h3>Ingresar al panel</h3>
-          <form onSubmit={handleLogin} className="admin-login-form">
-            <label>
-              Email
-              <input
-                className="stock-admin-text"
-                type="email"
-                value={loginEmail}
-                onChange={(event) => setLoginEmail(event.target.value)}
-              />
-            </label>
-            <label>
-              Contrasena
-              <input
-                className="stock-admin-text"
-                type="password"
-                value={loginPassword}
-                onChange={(event) => setLoginPassword(event.target.value)}
-              />
-            </label>
-            {loginError && <p className="admin-error">{loginError}</p>}
-            <button type="submit" className="stock-admin-add">Entrar</button>
-          </form>
-        </section>
+      {adminLoading && adminToken && (
+        <p className="admin-editor-hint">Verificando sesion...</p>
       )}
 
-      {adminToken && (
+      {adminToken && !adminLoading && (
         <div className="admin-toolbar admin-auth">
           <span className="admin-auth-status">Sesion activa</span>
           <button type="button" className="stock-admin-delete" onClick={handleLogout}>
@@ -346,7 +370,7 @@ export default function StockAdmin({
         </div>
       )}
 
-      {adminToken && (
+      {adminToken && !adminLoading && (
         <>
           {activeTab === 'categories' && (
             <section className="admin-section">
@@ -698,6 +722,23 @@ export default function StockAdmin({
                 >
                   Limpiar filtro
                 </button>
+                <button
+                  type="button"
+                  className="stock-admin-add"
+                  onClick={handleExportOrdersCsv}
+                  disabled={!orders.length}
+                >
+                  Exportar CSV
+                </button>
+                {ordersCsvUrl && (
+                  <a
+                    className="admin-csv-link"
+                    href={ordersCsvUrl}
+                    download="pedidos.csv"
+                  >
+                    Descargar
+                  </a>
+                )}
               </div>
               {ordersLoading && <p className="admin-editor-hint">Cargando pedidos...</p>}
               {ordersError && <p className="admin-error">{ordersError}</p>}

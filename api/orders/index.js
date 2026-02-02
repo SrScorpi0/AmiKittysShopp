@@ -42,7 +42,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { items, total, phone, address, message, notes } = await readJson(req);
+  const { items, total, phone, address, message } = await readJson(req);
   if (!Array.isArray(items) || items.length === 0) {
     res.status(400).json({ error: 'El carrito esta vacio.' });
     return;
@@ -70,7 +70,6 @@ export default async function handler(req, res) {
           phone,
           address,
           message,
-          notes,
           items: {
             create: items.map((item) => ({
               productId: item.id,
@@ -111,7 +110,6 @@ export default async function handler(req, res) {
           `Telefono: ${result.phone}`,
           `Direccion: ${result.address}`,
           `Mensaje: ${result.message || '-'}`,
-          `Notas: ${result.notes || '-'}`,
         ].join('\n');
 
         const htmlItems = result.items
@@ -124,10 +122,9 @@ export default async function handler(req, res) {
           <p><strong>Telefono:</strong> ${result.phone}</p>
           <p><strong>Direccion:</strong> ${result.address}</p>
           <p><strong>Mensaje:</strong> ${result.message || '-'}</p>
-          <p><strong>Notas:</strong> ${result.notes || '-'}</p>
-          <h3>Productos</h3>
-          <ul>${htmlItems}</ul>
-        `;
+        <h3>Productos</h3>
+        <ul>${htmlItems}</ul>
+      `;
 
         await resend.emails.send({
           from: process.env.RESEND_FROM || 'AmiKittyShop <onboarding@resend.dev>',

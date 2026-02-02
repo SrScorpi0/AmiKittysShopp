@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Outlet, Route, Routes } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import HeaderMobile from './components/HeaderMobile';
 import Sidebar from './components/Sidebar';
 import Main from './components/Main';
 import Cart from './components/Cart';
 import ProductDetail from './components/ProductDetail';
 import Home from './components/Home';
+import AdminLogin from './components/AdminLogin';
 import StockAdmin from './components/StockAdmin';
 import { products, type CartItem, type Product, type Category } from './data/products';
 import { categories as initialCategories } from './data/categories';
@@ -449,9 +450,21 @@ export default function App() {
     );
   }
 
+  function AdminGate({ children }: { children: React.ReactNode }) {
+    const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+    if (!token) {
+      return <Navigate to="/admin/login" replace />;
+    }
+    return <>{children}</>;
+  }
+
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route
+        path="/admin/login"
+        element={<AdminLogin />}
+      />
       <Route element={<ShopLayout />}>
         <Route
           path="/productos"
@@ -496,18 +509,20 @@ export default function App() {
         <Route
           path="/admin/stock"
           element={
-            <StockAdmin
-              products={catalogProducts}
-              categories={categories}
-              stockById={stockById}
-              onUpdateStock={handleUpdateStock}
-              onUpdateProduct={handleUpdateProduct}
-              onDeleteProduct={handleDeleteProduct}
-              onAddProduct={handleAddProduct}
-              onAddCategory={handleAddCategory}
-              onUpdateCategory={handleUpdateCategory}
-              onDeleteCategory={handleDeleteCategory}
-            />
+            <AdminGate>
+              <StockAdmin
+                products={catalogProducts}
+                categories={categories}
+                stockById={stockById}
+                onUpdateStock={handleUpdateStock}
+                onUpdateProduct={handleUpdateProduct}
+                onDeleteProduct={handleDeleteProduct}
+                onAddProduct={handleAddProduct}
+                onAddCategory={handleAddCategory}
+                onUpdateCategory={handleUpdateCategory}
+                onDeleteCategory={handleDeleteCategory}
+              />
+            </AdminGate>
           }
         />
       </Route>
