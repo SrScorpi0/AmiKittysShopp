@@ -628,6 +628,14 @@ main {
   flex-wrap: wrap;
 }
 
+.admin-toolbar label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  color: #374151;
+}
+
 .admin-auth {
   justify-content: flex-end;
   align-items: center;
@@ -818,6 +826,12 @@ main {
 .admin-product-actions .stock-admin-delete {
   background: #fee2e2;
   color: #991b1b;
+}
+
+.admin-order-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
 }
 
 .admin-product-editor {

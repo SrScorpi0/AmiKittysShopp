@@ -146,10 +146,10 @@ export default function App() {
         setCategories(categoriesData);
         setCatalogProducts(productsData);
         setStockById(
-          productsData.reduce<Record<string, number>>((acc: Record<string, number>, product: Product) => {
+          (productsData as Product[]).reduce((acc, product) => {
             acc[product.id] = product.stock ?? 0;
             return acc;
-          }, {}),
+          }, {} as Record<string, number>),
         );
       } catch (error) {
         // fallback to local cache
@@ -289,7 +289,6 @@ export default function App() {
 
   async function handleAddProduct() {
     const timestamp = Date.now();
-    const defaultCategory = categories.find((category) => category.id === DEFAULT_CATEGORY);
     const newProduct = {
       id: `producto-${timestamp}`,
       title: 'Nuevo producto',

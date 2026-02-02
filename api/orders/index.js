@@ -1,7 +1,42 @@
 import { prisma } from '../_lib/prisma.js';
 import { readJson } from '../_lib/body.js';
+import { requireAdmin } from '../_lib/auth.js';
+import { Resend } from 'resend';
+
+const resend = process.env.RESEND_API_KEY
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
 
 export default async function handler(req, res) {
+  if (req.method === 'GET') {
+    try {
+      requireAdmin(req);
+      const { dateFrom, dateTo, status } = req.query;
+      const where = {};
+      if (dateFrom || dateTo) {
+        where.createdAt = {};
+        if (dateFrom) {
+          where.createdAt.gte = new Date(`${dateFrom}T00:00:00.000Z`);
+        }
+        if (dateTo) {
+          where.createdAt.lte = new Date(`${dateTo}T23:59:59.999Z`);
+        }
+      }
+      if (status && status !== 'all') {
+        where.status = String(status);
+      }
+      const orders = await prisma.order.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        include: { items: true },
+      });
+      res.status(200).json(orders);
+    } catch (error) {
+      res.status(401).json({ error: 'Unauthorized' });
+    }
+    return;
+  }
+
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
     return;
@@ -58,7 +93,56 @@ export default async function handler(req, res) {
       return order;
     });
 
-    res.status(201).json(result);
+    let emailSent = false;
+    let emailError = '';
+
+    if (resend && process.env.ORDER_TO) {
+      try {
+        const lines = result.items
+          .map((item) => `${item.title} x${item.quantity} - $${item.price}`)
+          .join('\n');
+
+        const text = [
+          `Nuevo pedido #${result.id}`,
+          '',
+          `Productos:\n${lines}`,
+          '',
+          `Total: $${result.total}`,
+          `Telefono: ${result.phone}`,
+          `Direccion: ${result.address}`,
+          `Mensaje: ${result.message || '-'}`,
+          `Notas: ${result.notes || '-'}`,
+        ].join('\n');
+
+        const htmlItems = result.items
+          .map((item) => `<li>${item.title} x${item.quantity} - $${item.price}</li>`)
+          .join('');
+
+        const html = `
+          <h2>Nuevo pedido #${result.id}</h2>
+          <p><strong>Total:</strong> $${result.total}</p>
+          <p><strong>Telefono:</strong> ${result.phone}</p>
+          <p><strong>Direccion:</strong> ${result.address}</p>
+          <p><strong>Mensaje:</strong> ${result.message || '-'}</p>
+          <p><strong>Notas:</strong> ${result.notes || '-'}</p>
+          <h3>Productos</h3>
+          <ul>${htmlItems}</ul>
+        `;
+
+        await resend.emails.send({
+          from: process.env.RESEND_FROM || 'AmiKittyShop <onboarding@resend.dev>',
+          to: process.env.ORDER_TO,
+          subject: `Nuevo pedido - AmiKittyShop #${result.id}`,
+          text,
+          html,
+        });
+        emailSent = true;
+      } catch (error) {
+        emailError = error instanceof Error ? error.message : 'No se pudo enviar el email';
+      }
+    }
+
+    res.status(201).json({ ...result, emailSent, emailError });
   } catch (error) {
     res.status(400).json({ error: error instanceof Error ? error.message : 'Error' });
   }
