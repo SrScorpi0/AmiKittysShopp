@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import type { CartItem } from '../data/products';
+import LandingHeader from './LandingHeader';
+import LandingFooter from './LandingFooter';
 
 type CartProps = {
   items: CartItem[];
@@ -24,11 +27,13 @@ export default function Cart({
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
-  const [touched, setTouched] = useState<{ phone: boolean; address: boolean; email: boolean }>({
-    phone: false,
-    address: false,
-    email: false,
-  });
+  const [touched, setTouched] = useState<{ phone: boolean; address: boolean; email: boolean }>(
+    {
+      phone: false,
+      address: false,
+      email: false,
+    },
+  );
 
   const phoneError = useMemo(() => {
     if (!touched.phone) return '';
@@ -126,154 +131,222 @@ export default function Cart({
   }
 
   return (
-    <main>
-      <h2 className="titulo-principal">Carrito</h2>
-      <div className="contenedor-carrito">
+    <div className="cart-root min-h-screen bg-white text-[#1a1a1a]">
+      <LandingHeader />
+
+      <main className="flex-1 w-full max-w-7xl mx-auto px-10 sm:px-12 md:pl-24 md:pr-16 py-12">
         {isEmpty && (
-          <p id="carrito-vacio" className="carrito-vacio">
-            Tu carrito esta vacio. <i className="bi bi-emoji-frown" />
-          </p>
-        )}
-
-        {!isEmpty && !hasPurchased && (
-          <>
-            <div id="carrito-productos" className="carrito-productos">
-              {items.map((item) => (
-                <div key={item.id} className="carrito-producto">
-                  <img
-                    className="carrito-producto-imagen"
-                    src={item.image}
-                    alt={item.title}
-                  />
-                  <div className="carrito-producto-titulo">
-                    <small>Titulo</small>
-                    <h3>{item.title}</h3>
-                  </div>
-                  <div className="carrito-producto-cantidad">
-                    <small>Cantidad</small>
-                    <p>{item.quantity}</p>
-                  </div>
-                  <div className="carrito-producto-precio">
-                    <small>Precio</small>
-                    <p>${item.price}</p>
-                  </div>
-                  <div className="carrito-producto-subtotal">
-                    <small>Subtotal</small>
-                    <p>${item.price * item.quantity}</p>
-                  </div>
-                  <button
-                    className="carrito-producto-eliminar"
-                    type="button"
-                    onClick={() => onRemoveItem(item.id)}
-                  >
-                    <i className="bi bi-trash-fill" />
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            <div className="carrito-formulario">
-              <h3>Datos para envio</h3>
-              <div className="carrito-resumen">
-                <h4>Resumen del pedido</h4>
-                <ul>
-                  {items.map((item) => (
-                    <li key={item.id}>
-                      {item.title} x{item.quantity} - ${item.price * item.quantity}
-                    </li>
-                  ))}
-                </ul>
-                <p className="carrito-resumen-total">Total: ${total}</p>
-              </div>
-              <div className="carrito-formulario-grid">
-                <label>
-                  Telefono
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(event) => setPhone(event.target.value)}
-                    onBlur={() => setTouched((prev) => ({ ...prev, phone: true }))}
-                    placeholder="Tu telefono"
-                  />
-                  {phoneError && <span className="carrito-error">{phoneError}</span>}
-                </label>
-                <label>
-                  Email
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                    onBlur={() => setTouched((prev) => ({ ...prev, email: true }))}
-                    placeholder="Tu email"
-                  />
-                  {emailError && <span className="carrito-error">{emailError}</span>}
-                </label>
-                <label>
-                  Direccion
-                  <input
-                    type="text"
-                    value={address}
-                    onChange={(event) => setAddress(event.target.value)}
-                    onBlur={() => setTouched((prev) => ({ ...prev, address: true }))}
-                    placeholder="Tu direccion"
-                  />
-                  {addressError && <span className="carrito-error">{addressError}</span>}
-                </label>
-              </div>
-              <label>
-                Mensaje
-                <textarea
-                  rows={3}
-                  value={message}
-                  onChange={(event) => setMessage(event.target.value)}
-                  placeholder="Algo que quieras agregar"
-                />
-              </label>
-            </div>
-
-            <div id="carrito-acciones" className="carrito-acciones">
-              <div className="carrito-acciones-izquierda">
-                <button
-                  id="carrito-acciones-vaciar"
-                  className="carrito-acciones-vaciar"
-                  type="button"
-                  onClick={onClear}
-                >
-                  Vaciar carrito
-                </button>
-              </div>
-              <div className="carrito-acciones-derecha">
-                <div className="carrito-acciones-total">
-                  <p>Total</p>
-                  <p id="total">${total}</p>
-                </div>
-                <button
-                  id="carrito-acciones-comprar"
-                  className="carrito-acciones-comprar"
-                  type="button"
-                  onClick={handleSubmitOrder}
-                  disabled={status === 'loading' || !canSubmit}
-                >
-                  {status === 'loading' ? 'Enviando...' : 'Enviar pedido'}
-                </button>
-              </div>
-            </div>
-            {status === 'error' && (
-              <p className="carrito-error">{errorMessage}</p>
-            )}
-            {status === 'success' && (
-              <p className="carrito-success">Pedido enviado correctamente.</p>
-            )}
-          </>
+          <div className="rounded-2xl bg-[#fdf2f7] border border-[#f9e1ed] p-10 text-center">
+            <h1 className="text-3xl font-black tracking-tight mb-2">Tu carrito esta vacio</h1>
+            <p className="text-[#6b7280] mb-6">Explora nuestras piezas favoritas y agrega tus productos.</p>
+            <Link
+              to="/productos"
+              className="inline-flex items-center gap-2 text-[#ef3985] font-bold uppercase tracking-widest text-sm"
+            >
+              <span className="material-symbols-outlined text-lg">arrow_back</span>
+              Continuar Comprando
+            </Link>
+          </div>
         )}
 
         {hasPurchased && (
-          <p id="carrito-comprado" className="carrito-comprado">
-            Muchas gracias por tu compra, esperamos que lo disfrutes.{' '}
-            <i className="bi bi-emoji-heart-eyes" />
-          </p>
+          <div className="rounded-2xl bg-[#fdf2f7] border border-[#f9e1ed] p-10 text-center">
+            <h1 className="text-3xl font-black tracking-tight mb-2">Gracias por tu compra</h1>
+            <p className="text-[#6b7280] mb-6">Tu pedido fue enviado correctamente.</p>
+            <Link
+              to="/productos"
+              className="inline-flex items-center gap-2 text-[#ef3985] font-bold uppercase tracking-widest text-sm"
+            >
+              <span className="material-symbols-outlined text-lg">arrow_back</span>
+              Seguir Comprando
+            </Link>
+          </div>
         )}
-      </div>
-    </main>
+
+        {!isEmpty && !hasPurchased && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <div className="lg:col-span-8 bg-[#f4f0f2] border border-[#f9e1ed] rounded-2xl p-8 ml-3 md:ml-6">
+              <div className="flex items-center justify-between mb-8">
+                <h1 className="text-4xl font-black tracking-tight">Tu Carrito</h1>
+                <span className="text-[#6b7280] font-medium">
+                  {items.length} articulos seleccionados
+                </span>
+              </div>
+
+              <div className="space-y-0">
+                {items.map((item) => (
+                  <div key={item.id} className="py-8 border-b border-[#f9e1ed]">
+                    <div className="flex flex-col md:flex-row gap-6">
+                      <div className="w-28 h-28 md:w-32 md:h-32 flex-shrink-0 rounded-xl overflow-hidden bg-gray-50">
+                        <img
+                          src={item.image || item.images?.[0] || '/img/Logo/Logo.png'}
+                          alt={item.title}
+                          className="w-full h-full object-cover"
+                          onError={(event) => {
+                            event.currentTarget.src = '/img/Logo/Logo.png';
+                          }}
+                        />
+                      </div>
+                      <div className="flex-1 flex flex-col justify-between">
+                        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+                          <div>
+                            <h3 className="text-xl font-bold mb-1">{item.title}</h3>
+                            <p className="text-sm text-[#6b7280] leading-relaxed max-w-md">
+                              {item.description}
+                            </p>
+                          </div>
+                          <p className="text-xl font-black">
+                            ${item.price.toLocaleString('es-AR')}
+                          </p>
+                        </div>
+                        <div className="flex flex-wrap justify-between items-center mt-4 gap-4">
+                          <div className="flex items-center border border-gray-200 rounded-full px-3 py-1 bg-white">
+                            <span className="w-8 text-center font-bold text-sm">
+                              {item.quantity}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => onRemoveItem(item.id)}
+                            className="text-xs font-bold text-[#6b7280] hover:text-red-500 uppercase tracking-widest transition-colors flex items-center gap-1"
+                          >
+                            <span className="material-symbols-outlined text-sm">delete</span>
+                            Eliminar
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-10 flex flex-wrap items-center justify-between gap-4">
+                <button
+                  type="button"
+                  onClick={onClear}
+                  className="text-xs font-bold text-[#6b7280] hover:text-red-500 uppercase tracking-widest"
+                >
+                  Vaciar carrito
+                </button>
+                <Link
+                  to="/productos"
+                  className="inline-flex items-center gap-2 text-[#ef3985] font-bold uppercase tracking-widest text-sm"
+                >
+                  <span className="material-symbols-outlined text-lg">arrow_back</span>
+                  Continuar Comprando
+                </Link>
+              </div>
+            </div>
+
+            <div className="lg:col-span-4">
+              <div className="sticky top-32 bg-[#fdf2f7] rounded-2xl p-8 border border-[#f9e1ed]">
+                <h2 className="text-xl font-black mb-8 uppercase tracking-tight">
+                  Resumen de Pedido
+                </h2>
+                <div className="space-y-5 mb-8">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-[#6b7280]">Subtotal</span>
+                    <span className="font-bold text-[#1a1a1a]">
+                      ${total.toLocaleString('es-AR')}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-[#6b7280]">Gastos de Envio</span>
+                    <span className="font-bold text-[#1a1a1a]">$0</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-[#6b7280]">Impuestos Estimados</span>
+                    <span className="font-bold text-[#1a1a1a]">$0</span>
+                  </div>
+                  <div className="pt-5 border-t border-[#f9e1ed] flex justify-between items-center">
+                    <span className="font-black text-lg uppercase tracking-tight">Total</span>
+                    <span className="font-black text-3xl text-[#ef3985]">
+                      ${total.toLocaleString('es-AR')}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <label className="flex flex-col gap-2 text-sm font-semibold">
+                    Telefono
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(event) => setPhone(event.target.value)}
+                      onBlur={() => setTouched((prev) => ({ ...prev, phone: true }))}
+                      placeholder="Tu telefono"
+                      className="rounded-full border border-[#f9e1ed] px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ef3985]/30"
+                    />
+                    {phoneError && <span className="text-red-500 text-xs">{phoneError}</span>}
+                  </label>
+                  <label className="flex flex-col gap-2 text-sm font-semibold">
+                    Email
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
+                      onBlur={() => setTouched((prev) => ({ ...prev, email: true }))}
+                      placeholder="Tu email"
+                      className="rounded-full border border-[#f9e1ed] px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ef3985]/30"
+                    />
+                    {emailError && <span className="text-red-500 text-xs">{emailError}</span>}
+                  </label>
+                  <label className="flex flex-col gap-2 text-sm font-semibold">
+                    Direccion
+                    <input
+                      type="text"
+                      value={address}
+                      onChange={(event) => setAddress(event.target.value)}
+                      onBlur={() => setTouched((prev) => ({ ...prev, address: true }))}
+                      placeholder="Tu direccion"
+                      className="rounded-full border border-[#f9e1ed] px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ef3985]/30"
+                    />
+                    {addressError && <span className="text-red-500 text-xs">{addressError}</span>}
+                  </label>
+                  <label className="flex flex-col gap-2 text-sm font-semibold">
+                    Mensaje
+                    <textarea
+                      rows={3}
+                      value={message}
+                      onChange={(event) => setMessage(event.target.value)}
+                      placeholder="Algo que quieras agregar"
+                      className="rounded-2xl border border-[#f9e1ed] px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#ef3985]/30"
+                    />
+                  </label>
+
+                  <button
+                    type="button"
+                    onClick={handleSubmitOrder}
+                    disabled={status === 'loading' || !canSubmit}
+                    className={
+                      status === 'loading' || !canSubmit
+                        ? 'w-full bg-[#f9e1ed] text-[#6b7280] font-black py-4 rounded-full transition-all'
+                        : 'w-full bg-[#ef3985] hover:bg-[#ef3985]/90 text-white font-black py-4 rounded-full transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-[#ef3985]/20'
+                    }
+                  >
+                    {status === 'loading' ? 'Enviando...' : 'Continuar al Pago'}
+                    <span className="material-symbols-outlined text-xl">arrow_forward</span>
+                  </button>
+                  <p className="text-[11px] text-center text-[#ef3985]/70 font-bold uppercase tracking-widest mt-2 flex items-center justify-center gap-1">
+                    <span className="material-symbols-outlined text-sm">shield_locked</span>
+                    Pago 100% Seguro
+                  </p>
+                  {status === 'error' && (
+                    <p className="text-red-500 text-sm text-center">{errorMessage}</p>
+                  )}
+                  {status === 'success' && (
+                    <p className="text-emerald-600 text-sm text-center">
+                      Pedido enviado correctamente.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+
+      <LandingFooter />
+    </div>
   );
 }

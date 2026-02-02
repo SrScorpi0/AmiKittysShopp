@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Quicksand:wght@300..700&family=Rubik:ital,wght@0,300..900;1,300..900&family=Spline+Sans:wght@300;400;500;600;700;900&display=swap');
 
 :root {
   --clr-main: #f48fb1;
@@ -7,6 +7,39 @@
   --clr-white: #ececec;
   --clr-gray: #e2e2e2;
   --clr-red: #961818;
+}
+
+.landing-root {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.landing-root main {
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  background-color: transparent;
+}
+
+.catalog-root {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.catalog-root main {
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  background-color: transparent;
+}
+
+.cart-root {
+  font-family: 'Spline Sans', sans-serif;
+}
+
+.cart-root main {
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  background-color: transparent;
 }
 
 @layer base {
@@ -310,7 +343,7 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 20;
+  z-index: 80;
   opacity: 0;
   transition: opacity 0.2s ease;
 }

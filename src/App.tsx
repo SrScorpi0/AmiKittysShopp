@@ -462,50 +462,53 @@ export default function App() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route
+        path="/productos"
+        element={
+          <Main
+            products={visibleProducts}
+            categories={categories}
+            activeCategoryId={activeCategoryId}
+            onSelectCategory={setActiveCategoryId}
+            onAddToCart={handleAddToCart}
+            stockById={stockById}
+            searchQuery={searchQuery}
+            onSearchQueryChange={setSearchQuery}
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            onMinPriceChange={setMinPrice}
+            onMaxPriceChange={setMaxPrice}
+            sortBy={sortBy}
+            onSortByChange={setSortBy}
+          />
+        }
+      />
+      <Route
+        path="/producto/:id"
+        element={
+          <ProductDetail
+            products={catalogProducts}
+            onAddToCart={handleAddToCart}
+            stockById={stockById}
+          />
+        }
+      />
+      <Route
+        path="/carrito"
+        element={
+          <Cart
+            items={cartItems}
+            hasPurchased={hasPurchased}
+            onRemoveItem={handleRemoveFromCart}
+            onClear={handleClearCart}
+            onPurchase={handlePurchase}
+          />
+        }
+      />
+      <Route
         path="/admin/login"
         element={<AdminLogin />}
       />
       <Route element={<ShopLayout />}>
-        <Route
-          path="/productos"
-          element={
-            <Main
-              products={visibleProducts}
-              onAddToCart={handleAddToCart}
-              stockById={stockById}
-              searchQuery={searchQuery}
-              onSearchQueryChange={setSearchQuery}
-              minPrice={minPrice}
-              maxPrice={maxPrice}
-              onMinPriceChange={setMinPrice}
-              onMaxPriceChange={setMaxPrice}
-              sortBy={sortBy}
-              onSortByChange={setSortBy}
-            />
-          }
-        />
-        <Route
-          path="/carrito"
-          element={
-            <Cart
-              items={cartItems}
-              hasPurchased={hasPurchased}
-              onRemoveItem={handleRemoveFromCart}
-              onClear={handleClearCart}
-              onPurchase={handlePurchase}
-            />
-          }
-        />
-        <Route
-          path="/producto/:id"
-          element={
-            <ProductDetail
-              products={catalogProducts}
-              onAddToCart={handleAddToCart}
-              stockById={stockById}
-            />
-          }
-        />
         <Route
           path="/admin/stock"
           element={
