@@ -1,0 +1,180 @@
+import 'dotenv/config';
+import pkg from '@prisma/client';
+
+const { PrismaClient } = pkg;
+const prisma = new PrismaClient();
+
+const categories = [
+  { id: 'todos', label: 'Todos los productos' },
+  { id: 'ceramicas', label: 'Ceramicas' },
+  { id: 'toallones', label: 'Toallones' },
+  { id: 'repasadores', label: 'Repasadores' },
+];
+
+const products = [
+  {
+    id: 'ceramica-01',
+    title: 'ceramica 01',
+    image: '/img/Ceramicas/ceramica-01.jpg',
+    images: [
+      '/img/Ceramicas/ceramica-01.jpg',
+      '/img/Ceramicas/ceramica-01.jpg',
+      '/img/Ceramicas/ceramica-01.jpg',
+    ],
+    categoryId: 'ceramicas',
+    price: 1000,
+    description: 'Ceramica artesanal esmaltada en tonos suaves. Ideal para decorar o regalar.',
+    material: 'Ceramica esmaltada',
+    size: '20 cm',
+    color: 'Rosa pastel',
+    stock: 8,
+  },
+  {
+    id: 'ceramica-02',
+    title: 'ceramica 02',
+    image: '/img/Ceramicas/ceramica-02.png',
+    images: [
+      '/img/Ceramicas/ceramica-02.png',
+      '/img/Ceramicas/ceramica-02.png',
+      '/img/Ceramicas/ceramica-02.png',
+    ],
+    categoryId: 'ceramicas',
+    price: 1000,
+    description: 'Pieza de ceramica con acabado satinado y detalles pintados a mano.',
+    material: 'Ceramica satinada',
+    size: '18 cm',
+    color: 'Crema',
+    stock: 6,
+  },
+  {
+    id: 'toallon-01',
+    title: 'toallon 01',
+    image: '/img/Toallas/Toallon-01.jpg',
+    images: [
+      '/img/Toallas/Toallon-01.jpg',
+      '/img/Toallas/Toallon-01.jpg',
+      '/img/Toallas/Toallon-01.jpg',
+    ],
+    categoryId: 'toallones',
+    price: 1000,
+    description: 'Toallon de algodon suave y absorbente. Tamano grande para uso diario.',
+    material: 'Algodon',
+    size: '140 x 70 cm',
+    color: 'Blanco',
+    stock: 12,
+  },
+  {
+    id: 'toallon-02',
+    title: 'toallon 02',
+    image: '/img/Toallas/Toallon-02.jpg',
+    images: [
+      '/img/Toallas/Toallon-02.jpg',
+      '/img/Toallas/Toallon-02.jpg',
+      '/img/Toallas/Toallon-02.jpg',
+    ],
+    categoryId: 'toallones',
+    price: 1000,
+    description: 'Toallon con textura esponjosa y costuras reforzadas.',
+    material: 'Algodon peinado',
+    size: '150 x 80 cm',
+    color: 'Gris claro',
+    stock: 5,
+  },
+  {
+    id: 'toallon-03',
+    title: 'toallon 03',
+    image: '/img/Toallas/Toallon-03.jpg',
+    images: [
+      '/img/Toallas/Toallon-03.jpg',
+      '/img/Toallas/Toallon-03.jpg',
+      '/img/Toallas/Toallon-03.jpg',
+    ],
+    categoryId: 'toallones',
+    price: 1000,
+    description: 'Toallon liviano y de secado rapido, ideal para gimnasio o playa.',
+    material: 'Microfibra',
+    size: '120 x 60 cm',
+    color: 'Azul',
+    stock: 10,
+  },
+  {
+    id: 'repasador-01',
+    title: 'repasador 01',
+    image: '/img/Repasadores/repasador-01 .jpg',
+    images: [
+      '/img/Repasadores/repasador-01 .jpg',
+      '/img/Repasadores/repasador-01 .jpg',
+      '/img/Repasadores/repasador-01 .jpg',
+    ],
+    categoryId: 'repasadores',
+    price: 1000,
+    description: 'Repasador de cocina con tela resistente y diseno clasico.',
+    material: 'Algodon',
+    size: '50 x 70 cm',
+    color: 'Rojo',
+    stock: 4,
+  },
+  {
+    id: 'repasador-02',
+    title: 'repasador 02',
+    image: '/img/Repasadores/repasador-02 .jpg',
+    images: [
+      '/img/Repasadores/repasador-02 .jpg',
+      '/img/Repasadores/repasador-02 .jpg',
+      '/img/Repasadores/repasador-02 .jpg',
+    ],
+    categoryId: 'repasadores',
+    price: 1000,
+    description: 'Repasador con textura tipo waffle para mayor absorcion.',
+    material: 'Algodon waffle',
+    size: '45 x 65 cm',
+    color: 'Beige',
+    stock: 7,
+  },
+  {
+    id: 'repasador-03',
+    title: 'repasador 03',
+    image: '/img/Repasadores/repasador-03 .jpg',
+    images: [
+      '/img/Repasadores/repasador-03 .jpg',
+      '/img/Repasadores/repasador-03 .jpg',
+      '/img/Repasadores/repasador-03 .jpg',
+    ],
+    categoryId: 'repasadores',
+    price: 1000,
+    description: 'Repasador liviano, facil de lavar y de secado rapido.',
+    material: 'Algodon ligero',
+    size: '45 x 65 cm',
+    color: 'Verde',
+    stock: 9,
+  },
+];
+
+async function main() {
+  for (const category of categories) {
+    await prisma.category.upsert({
+      where: { id: category.id },
+      update: { label: category.label },
+      create: category,
+    });
+  }
+
+  for (const product of products) {
+    await prisma.product.upsert({
+      where: { id: product.id },
+      update: product,
+      create: product,
+    });
+  }
+
+  console.log(`Seed completado: ${categories.length} categorias y ${products.length} productos.`);
+}
+
+main()
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

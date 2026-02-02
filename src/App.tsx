@@ -12,9 +12,9 @@ import { categories as initialCategories } from './data/categories';
 
 const DEFAULT_CATEGORY = 'todos';
 const CART_STORAGE_KEY = 'kittyshop-cart';
-const STOCK_STORAGE_KEY = 'kittyshop-stock';
 const PRODUCTS_STORAGE_KEY = 'kittyshop-products';
 const CATEGORIES_STORAGE_KEY = 'kittyshop-categories';
+const ADMIN_TOKEN_KEY = 'kittyshop-admin-token';
 
 export default function App() {
   const [activeCategoryId, setActiveCategoryId] = useState(DEFAULT_CATEGORY);
@@ -55,20 +55,12 @@ export default function App() {
       return [];
     }
   });
-  const [stockById, setStockById] = useState<Record<string, number>>(() => {
-    try {
-      const stored = localStorage.getItem(STOCK_STORAGE_KEY);
-      if (stored) {
-        return JSON.parse(stored) as Record<string, number>;
-      }
-    } catch {
-      // ignore invalid data
-    }
-    return catalogProducts.reduce<Record<string, number>>((acc, product) => {
+  const [stockById, setStockById] = useState<Record<string, number>>(() =>
+    catalogProducts.reduce<Record<string, number>>((acc, product) => {
       acc[product.id] = product.stock;
       return acc;
-    }, {});
-  });
+    }, {}),
+  );
 
   const visibleProducts = useMemo(() => {
     const base = activeCategoryId === DEFAULT_CATEGORY
@@ -105,16 +97,12 @@ export default function App() {
   }, [cartItems]);
 
   useEffect(() => {
-    localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(categories));
-  }, [categories]);
-
-  useEffect(() => {
     localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(catalogProducts));
   }, [catalogProducts]);
 
   useEffect(() => {
-    localStorage.setItem(STOCK_STORAGE_KEY, JSON.stringify(stockById));
-  }, [stockById]);
+    localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(categories));
+  }, [categories]);
 
   useEffect(() => {
     if (cartItems.length > 0) {
@@ -140,6 +128,35 @@ export default function App() {
       prev.filter((item) => catalogProducts.some((product) => product.id === item.id)),
     );
   }, [catalogProducts]);
+
+  useEffect(() => {
+    async function loadCatalog() {
+      try {
+        const [categoriesResponse, productsResponse] = await Promise.all([
+          fetch('/api/categories'),
+          fetch('/api/products'),
+        ]);
+        if (!categoriesResponse.ok || !productsResponse.ok) {
+          throw new Error('No se pudo cargar el catalogo');
+        }
+        const [categoriesData, productsData] = await Promise.all([
+          categoriesResponse.json(),
+          productsResponse.json(),
+        ]);
+        setCategories(categoriesData);
+        setCatalogProducts(productsData);
+        setStockById(
+          productsData.reduce<Record<string, number>>((acc: Record<string, number>, product: Product) => {
+            acc[product.id] = product.stock ?? 0;
+            return acc;
+          }, {}),
+        );
+      } catch (error) {
+        // fallback to local cache
+      }
+    }
+    loadCatalog();
+  }, []);
 
   useEffect(() => {
     setCartItems((prev) =>
@@ -191,47 +208,94 @@ export default function App() {
     setHasPurchased(true);
   }
 
-  function handleUpdateStock(productId: string, value: number) {
+  function getAdminToken() {
+    return localStorage.getItem(ADMIN_TOKEN_KEY) || '';
+  }
+
+  async function handleUpdateStock(productId: string, value: number) {
     const sanitized = Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0;
-    setStockById((prev) => ({ ...prev, [productId]: sanitized }));
+    try {
+      const token = getAdminToken();
+      const response = await fetch(`/api/products/${productId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token ? `Bearer ${token}` : '',
+        },
+        body: JSON.stringify({ stock: sanitized }),
+      });
+      if (!response.ok) {
+        throw new Error('Error al actualizar stock');
+      }
+      const updated = await response.json();
+      setCatalogProducts((prev) =>
+        prev.map((product) => (product.id === productId ? updated : product)),
+      );
+      setStockById((prev) => ({ ...prev, [productId]: updated.stock ?? sanitized }));
+    } catch (error) {
+      // ignore
+    }
   }
 
-  function handleUpdateProduct(productId: string, updates: Partial<Product>) {
-    setCatalogProducts((prev) =>
-      prev.map((product) => {
-        if (product.id !== productId) return product;
-        const next = { ...product, ...updates };
-        if (updates.categoryId) {
-          const category = categories.find((item) => item.id === updates.categoryId);
-          if (category) {
-            next.categoryName = category.label;
-          }
-        }
+  async function handleUpdateProduct(productId: string, updates: Partial<Product>) {
+    try {
+      const token = getAdminToken();
+      const response = await fetch(`/api/products/${productId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token ? `Bearer ${token}` : '',
+        },
+        body: JSON.stringify(updates),
+      });
+      if (!response.ok) {
+        throw new Error('Error al actualizar producto');
+      }
+      const updated = await response.json();
+      setCatalogProducts((prev) =>
+        prev.map((product) => (product.id === productId ? updated : product)),
+      );
+      if (typeof updated.stock === 'number') {
+        setStockById((prev) => ({ ...prev, [productId]: updated.stock }));
+      }
+    } catch (error) {
+      // ignore
+    }
+  }
+
+  async function handleDeleteProduct(productId: string) {
+    try {
+      const token = getAdminToken();
+      const response = await fetch(`/api/products/${productId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: token ? `Bearer ${token}` : '',
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Error al eliminar producto');
+      }
+      setCatalogProducts((prev) => prev.filter((product) => product.id !== productId));
+      setStockById((prev) => {
+        const next = { ...prev };
+        delete next[productId];
         return next;
-      }),
-    );
+      });
+      setCartItems((prev) => prev.filter((item) => item.id !== productId));
+    } catch (error) {
+      // ignore
+    }
   }
 
-  function handleDeleteProduct(productId: string) {
-    setCatalogProducts((prev) => prev.filter((product) => product.id !== productId));
-    setStockById((prev) => {
-      const next = { ...prev };
-      delete next[productId];
-      return next;
-    });
-    setCartItems((prev) => prev.filter((item) => item.id !== productId));
-  }
-
-  function handleAddProduct() {
+  async function handleAddProduct() {
     const timestamp = Date.now();
     const defaultCategory = categories.find((category) => category.id === DEFAULT_CATEGORY);
-    const newProduct: Product = {
+    const newProduct = {
       id: `producto-${timestamp}`,
       title: 'Nuevo producto',
       image: '/img/Logo/Logo.png',
       images: ['/img/Logo/Logo.png'],
       categoryId: DEFAULT_CATEGORY,
-      categoryName: defaultCategory?.label ?? 'Todos los productos',
       price: 0,
       description: 'Descripcion pendiente.',
       material: '-',
@@ -239,8 +303,25 @@ export default function App() {
       color: '-',
       stock: 0,
     };
-    setCatalogProducts((prev) => [newProduct, ...prev]);
-    setStockById((prev) => ({ ...prev, [newProduct.id]: 0 }));
+    try {
+      const token = getAdminToken();
+      const response = await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token ? `Bearer ${token}` : '',
+        },
+        body: JSON.stringify(newProduct),
+      });
+      if (!response.ok) {
+        throw new Error('Error al crear producto');
+      }
+      const created = await response.json();
+      setCatalogProducts((prev) => [created, ...prev]);
+      setStockById((prev) => ({ ...prev, [created.id]: created.stock ?? 0 }));
+    } catch (error) {
+      // ignore
+    }
   }
 
   function slugifyCategory(value: string) {
@@ -252,7 +333,7 @@ export default function App() {
       .replace(/-+/g, '-');
   }
 
-  function handleAddCategory(label: string) {
+  async function handleAddCategory(label: string) {
     const base = slugifyCategory(label) || 'categoria';
     let id = base;
     let count = 1;
@@ -260,35 +341,85 @@ export default function App() {
       id = `${base}-${count}`;
       count += 1;
     }
-    setCategories((prev) => [...prev, { id, label }]);
+    try {
+      const token = getAdminToken();
+      const response = await fetch('/api/categories', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token ? `Bearer ${token}` : '',
+        },
+        body: JSON.stringify({ id, label }),
+      });
+      if (!response.ok) {
+        throw new Error('Error al crear categoria');
+      }
+      const created = await response.json();
+      setCategories((prev) => [...prev, created]);
+    } catch (error) {
+      // ignore
+    }
   }
 
-  function handleUpdateCategory(categoryId: string, label: string) {
-    setCategories((prev) =>
-      prev.map((category) => (category.id === categoryId ? { ...category, label } : category)),
-    );
-    setCatalogProducts((prev) =>
-      prev.map((product) =>
-        product.categoryId === categoryId ? { ...product, categoryName: label } : product,
-      ),
-    );
+  async function handleUpdateCategory(categoryId: string, label: string) {
+    try {
+      const token = getAdminToken();
+      const response = await fetch(`/api/categories/${categoryId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token ? `Bearer ${token}` : '',
+        },
+        body: JSON.stringify({ label }),
+      });
+      if (!response.ok) {
+        throw new Error('Error al actualizar categoria');
+      }
+      const updated = await response.json();
+      setCategories((prev) =>
+        prev.map((category) => (category.id === categoryId ? updated : category)),
+      );
+      setCatalogProducts((prev) =>
+        prev.map((product) =>
+          product.categoryId === categoryId
+            ? { ...product, categoryName: updated.label }
+            : product,
+        ),
+      );
+    } catch (error) {
+      // ignore
+    }
   }
 
-  function handleDeleteCategory(categoryId: string) {
+  async function handleDeleteCategory(categoryId: string) {
     if (categoryId === DEFAULT_CATEGORY) return;
     const fallback = categories.find((category) => category.id === DEFAULT_CATEGORY);
-    setCategories((prev) => prev.filter((category) => category.id !== categoryId));
-    setCatalogProducts((prev) =>
-      prev.map((product) =>
-        product.categoryId === categoryId
-          ? {
-              ...product,
-              categoryId: DEFAULT_CATEGORY,
-              categoryName: fallback?.label ?? 'Todos los productos',
-            }
-          : product,
-      ),
-    );
+    try {
+      const token = getAdminToken();
+      const response = await fetch(`/api/categories/${categoryId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: token ? `Bearer ${token}` : '',
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Error al eliminar categoria');
+      }
+      setCategories((prev) => prev.filter((category) => category.id !== categoryId));
+      setCatalogProducts((prev) =>
+        prev.map((product) =>
+          product.categoryId === categoryId
+            ? {
+                ...product,
+                categoryId: DEFAULT_CATEGORY,
+                categoryName: fallback?.label ?? 'Todos los productos',
+              }
+            : product,
+        ),
+      );
+    } catch (error) {
+      // ignore
+    }
   }
 
   function ShopLayout() {

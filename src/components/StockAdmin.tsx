@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { Category, Product } from '../data/products';
 
@@ -16,6 +16,7 @@ type StockAdminProps = {
 };
 
 type AdminTab = 'categories' | 'pricing' | 'products';
+const ADMIN_TOKEN_KEY = 'kittyshop-admin-token';
 
 export default function StockAdmin({
   products,
@@ -43,6 +44,10 @@ export default function StockAdmin({
   const [productDraft, setProductDraft] = useState<Product | null>(null);
   const [productDraftImage, setProductDraftImage] = useState('');
   const editorRef = useRef<HTMLDivElement | null>(null);
+  const [adminToken, setAdminToken] = useState(() => localStorage.getItem(ADMIN_TOKEN_KEY) || '');
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
 
   const filteredProducts = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -62,6 +67,37 @@ export default function StockAdmin({
       setActiveTab(tab);
     }
   }, [searchParams]);
+
+  async function handleLogin(event: FormEvent) {
+    event.preventDefault();
+    setLoginError('');
+    try {
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
+      });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data?.error || 'Error al iniciar sesion');
+      }
+      const data = await response.json();
+      const token = data?.token || '';
+      if (!token) {
+        throw new Error('Token invalido');
+      }
+      localStorage.setItem(ADMIN_TOKEN_KEY, token);
+      setAdminToken(token);
+      setLoginPassword('');
+    } catch (error) {
+      setLoginError(error instanceof Error ? error.message : 'Error al iniciar sesion');
+    }
+  }
+
+  function handleLogout() {
+    localStorage.removeItem(ADMIN_TOKEN_KEY);
+    setAdminToken('');
+  }
 
   useEffect(() => {
     if (!selectedProductId) return;
@@ -186,7 +222,44 @@ export default function StockAdmin({
   return (
     <main>
       <h2 className="titulo-principal">Administrar stock</h2>
-      {activeTab === 'categories' && (
+      {!adminToken && (
+        <section className="admin-login">
+          <h3>Ingresar al panel</h3>
+          <form onSubmit={handleLogin} className="admin-login-form">
+            <label>
+              Email
+              <input
+                className="stock-admin-text"
+                type="email"
+                value={loginEmail}
+                onChange={(event) => setLoginEmail(event.target.value)}
+              />
+            </label>
+            <label>
+              Contraseña
+              <input
+                className="stock-admin-text"
+                type="password"
+                value={loginPassword}
+                onChange={(event) => setLoginPassword(event.target.value)}
+              />
+            </label>
+            {loginError && <p className="admin-error">{loginError}</p>}
+            <button type="submit" className="stock-admin-add">Entrar</button>
+          </form>
+        </section>
+      )}
+      {adminToken && (
+        <div className="admin-toolbar admin-auth">
+          <span className="admin-auth-status">Sesion activa</span>
+          <button type="button" className="stock-admin-delete" onClick={handleLogout}>
+            Cerrar sesion
+          </button>
+        </div>
+      )}
+      {adminToken && (
+        <>
+          {activeTab === 'categories' && (
         <section className="admin-section">
           <div className="admin-section-header">
             <h3>Categorias</h3>
@@ -514,6 +587,8 @@ export default function StockAdmin({
           </div>
 
         </section>
+      )}
+        </>
       )}
     </main>
   );
