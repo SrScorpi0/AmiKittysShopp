@@ -80,6 +80,9 @@ export default function StockAdmin({
   const [orderStatusDraftById, setOrderStatusDraftById] = useState<Record<string, string>>({});
   const [orderStatusEditingId, setOrderStatusEditingId] = useState<string | null>(null);
   const [ordersCsvUrl, setOrdersCsvUrl] = useState('');
+  const [uploadingMainImage, setUploadingMainImage] = useState(false);
+  const [uploadingGalleryImage, setUploadingGalleryImage] = useState(false);
+  const [uploadError, setUploadError] = useState('');
 
   const filteredProducts = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -353,6 +356,35 @@ export default function StockAdmin({
     });
   }
 
+  async function uploadFile(file: File) {
+    const base64 = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result).split(',')[1] || '');
+      reader.onerror = () => reject(new Error('No se pudo leer el archivo'));
+      reader.readAsDataURL(file);
+    });
+
+    const response = await fetch('/api/storage/upload', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${adminToken}`,
+      },
+      body: JSON.stringify({
+        fileName: file.name,
+        contentType: file.type || 'application/octet-stream',
+        data: base64,
+      }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data?.error || 'Error al subir imagen');
+    }
+    const data = await response.json();
+    return data.url as string;
+  }
+
   return (
     <main>
       <h2 className="titulo-principal">Administrar stock</h2>
@@ -586,6 +618,29 @@ export default function StockAdmin({
                         />
                       </label>
                       <label>
+                        Subir imagen principal
+                        <input
+                          type="file"
+                          accept="image/*"
+                          disabled={uploadingMainImage}
+                          onChange={async (event) => {
+                            const file = event.target.files?.[0];
+                            if (!file || !productDraft) return;
+                            setUploadError('');
+                            setUploadingMainImage(true);
+                            try {
+                              const url = await uploadFile(file);
+                              setProductDraft({ ...productDraft, image: url });
+                            } catch (error) {
+                              setUploadError(error instanceof Error ? error.message : 'Error al subir imagen');
+                            } finally {
+                              setUploadingMainImage(false);
+                              event.target.value = '';
+                            }
+                          }}
+                        />
+                      </label>
+                      <label>
                         Descripcion
                         <textarea
                           rows={4}
@@ -618,6 +673,33 @@ export default function StockAdmin({
                       />
                       <button type="button" onClick={handleDraftAddImage}>Agregar</button>
                     </div>
+                    <label>
+                      Subir a galeria
+                      <input
+                        type="file"
+                        accept="image/*"
+                        disabled={uploadingGalleryImage}
+                        onChange={async (event) => {
+                          const file = event.target.files?.[0];
+                          if (!file || !productDraft) return;
+                          setUploadError('');
+                          setUploadingGalleryImage(true);
+                          try {
+                            const url = await uploadFile(file);
+                            setProductDraft({
+                              ...productDraft,
+                              images: [...(productDraft.images || []), url],
+                            });
+                          } catch (error) {
+                            setUploadError(error instanceof Error ? error.message : 'Error al subir imagen');
+                          } finally {
+                            setUploadingGalleryImage(false);
+                            event.target.value = '';
+                          }
+                        }}
+                      />
+                    </label>
+                    {uploadError && <p className="admin-error">{uploadError}</p>}
                   </div>
                 </div>
               ) : (

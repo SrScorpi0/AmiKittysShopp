@@ -983,6 +983,14 @@ main {
   color: #374151;
 }
 
+.admin-editor-images input[type="file"],
+.admin-editor-fields input[type="file"] {
+  border: 1px solid var(--clr-gray);
+  border-radius: 0.5rem;
+  padding: 0.4rem;
+  font-family: inherit;
+}
+
 .admin-editor-hint {
   font-size: 0.9rem;
   color: #6b7280;
@@ -1006,6 +1014,13 @@ main {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+.admin-login-form input[type="file"] {
+  border: 1px solid var(--clr-gray);
+  border-radius: 0.5rem;
+  padding: 0.4rem;
+  font-family: inherit;
 }
 
 .admin-error {
