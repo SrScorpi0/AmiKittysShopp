@@ -35,10 +35,44 @@ export default async function handler(req, res) {
     const recipients = [process.env.ORDER_TO, updated.email].filter(Boolean);
     if (resend && recipients.length > 0) {
       try {
+        const statusMessages = {
+          pending: {
+            subject: 'Tu pedido está pendiente de confirmación',
+            text:
+              'Hola! Recibimos tu pedido y ya lo estamos revisando.\n' +
+              'En breve te confirmamos el estado. Gracias por comprar en AmiKittyShop 💖',
+          },
+          approved: {
+            subject: 'Tu pedido fue aprobado',
+            text:
+              '¡Buenas noticias! Tu pedido fue aprobado y ya estamos preparando todo.\n' +
+              'Te avisamos apenas lo despachemos. Gracias por tu compra 💖',
+          },
+          sent: {
+            subject: 'Tu pedido fue enviado',
+            text:
+              'Tu pedido ya fue enviado 🚚\n' +
+              'Pronto deberías recibirlo. Gracias por confiar en AmiKittyShop 💖',
+          },
+          cancelled: {
+            subject: 'Tu pedido fue cancelado',
+            text:
+              'Lamentamos informarte que tu pedido fue cancelado.\n' +
+              'Si querés, podés escribirnos para ayudarte o volver a realizarlo.',
+          },
+        };
+
+        const fallback = {
+          subject: `Estado actualizado - Pedido #${updated.id}`,
+          text: `Tu pedido ahora está en estado: ${updated.status}`,
+        };
+
+        const content = statusMessages[updated.status] || fallback;
+
         const text = [
-          `Pedido #${updated.id}`,
-          `Estado actualizado: ${updated.status}`,
+          content.text,
           '',
+          `Pedido #${updated.id}`,
           `Total: $${updated.total}`,
           `Telefono: ${updated.phone}`,
           `Direccion: ${updated.address}`,
@@ -49,8 +83,9 @@ export default async function handler(req, res) {
           .join('');
 
         const html = `
-          <h2>Pedido #${updated.id}</h2>
-          <p><strong>Estado actualizado:</strong> ${updated.status}</p>
+          <p>${content.text.replace(/\n/g, '<br />')}</p>
+          <hr />
+          <p><strong>Pedido:</strong> #${updated.id}</p>
           <p><strong>Total:</strong> $${updated.total}</p>
           <p><strong>Telefono:</strong> ${updated.phone}</p>
           <p><strong>Direccion:</strong> ${updated.address}</p>
@@ -61,7 +96,7 @@ export default async function handler(req, res) {
         await resend.emails.send({
           from: process.env.RESEND_FROM || 'AmiKittyShop <onboarding@resend.dev>',
           to: recipients,
-          subject: `Estado actualizado - Pedido #${updated.id}`,
+          subject: content.subject,
           text,
           html,
         });
