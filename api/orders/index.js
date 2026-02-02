@@ -42,13 +42,13 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { items, total, phone, address, message } = await readJson(req);
+  const { items, total, phone, email, address, message } = await readJson(req);
   if (!Array.isArray(items) || items.length === 0) {
     res.status(400).json({ error: 'El carrito esta vacio.' });
     return;
   }
-  if (!phone || !address) {
-    res.status(400).json({ error: 'Faltan telefono o direccion.' });
+  if (!phone || !email || !address) {
+    res.status(400).json({ error: 'Faltan telefono, email o direccion.' });
     return;
   }
 
@@ -68,6 +68,7 @@ export default async function handler(req, res) {
         data: {
           total,
           phone,
+          email,
           address,
           message,
           items: {
@@ -95,7 +96,8 @@ export default async function handler(req, res) {
     let emailSent = false;
     let emailError = '';
 
-    if (resend && process.env.ORDER_TO) {
+    const recipients = [process.env.ORDER_TO, result.email].filter(Boolean);
+    if (resend && recipients.length > 0) {
       try {
         const lines = result.items
           .map((item) => `${item.title} x${item.quantity} - $${item.price}`)
@@ -128,7 +130,7 @@ export default async function handler(req, res) {
 
         await resend.emails.send({
           from: process.env.RESEND_FROM || 'AmiKittyShop <onboarding@resend.dev>',
-          to: process.env.ORDER_TO,
+          to: recipients,
           subject: `Nuevo pedido - AmiKittyShop #${result.id}`,
           text,
           html,

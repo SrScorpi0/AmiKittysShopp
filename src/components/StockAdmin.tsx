@@ -29,6 +29,7 @@ type AdminOrder = {
   id: string;
   total: number;
   phone: string;
+  email?: string;
   address: string;
   message?: string;
   status: string;
@@ -211,6 +212,7 @@ export default function StockAdmin({
         'id',
         'fecha',
         'telefono',
+        'email',
         'direccion',
         'total',
         'estado',
@@ -221,6 +223,7 @@ export default function StockAdmin({
         order.id,
         new Date(order.createdAt).toISOString(),
         order.phone,
+        order.email || '',
         order.address,
         order.total,
         order.status,
@@ -848,6 +851,7 @@ export default function StockAdmin({
                           <td>{new Date(order.createdAt).toLocaleString()}</td>
                           <td>
                             <div>{order.phone}</div>
+                            <small>{order.email || '-'}</small>
                             <small>{order.address}</small>
                           </td>
                           <td>${order.total}</td>

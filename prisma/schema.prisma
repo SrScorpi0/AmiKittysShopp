@@ -37,6 +37,7 @@ model Order {
   total     Int
   phone     String
   address   String
+  email     String?
   message   String?
   status    String      @default("pending")
   items     OrderItem[]

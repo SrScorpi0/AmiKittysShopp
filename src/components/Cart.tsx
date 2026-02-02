@@ -19,13 +19,15 @@ export default function Cart({
   const total = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const isEmpty = items.length === 0 && !hasPurchased;
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
-  const [touched, setTouched] = useState<{ phone: boolean; address: boolean }>({
+  const [touched, setTouched] = useState<{ phone: boolean; address: boolean; email: boolean }>({
     phone: false,
     address: false,
+    email: false,
   });
 
   const phoneError = useMemo(() => {
@@ -35,6 +37,13 @@ export default function Cart({
     return '';
   }, [phone, touched.phone]);
 
+  const emailError = useMemo(() => {
+    if (!touched.email) return '';
+    if (!email.trim()) return 'El email es obligatorio';
+    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    return ok ? '' : 'Email invalido';
+  }, [email, touched.email]);
+
   const addressError = useMemo(() => {
     if (!touched.address) return '';
     if (!address.trim()) return 'La direccion es obligatoria';
@@ -42,14 +51,26 @@ export default function Cart({
   }, [address, touched.address]);
 
   const canSubmit =
-    items.length > 0 && !phoneError && !addressError && phone.trim() && address.trim();
+    items.length > 0 &&
+    !phoneError &&
+    !emailError &&
+    !addressError &&
+    phone.trim() &&
+    email.trim() &&
+    address.trim();
 
   useEffect(() => {
     const stored = localStorage.getItem('kittyshop-checkout');
     if (stored) {
       try {
-        const data = JSON.parse(stored) as { phone?: string; address?: string; message?: string };
+        const data = JSON.parse(stored) as {
+          phone?: string;
+          email?: string;
+          address?: string;
+          message?: string;
+        };
         setPhone(data.phone || '');
+        setEmail(data.email || '');
         setAddress(data.address || '');
         setMessage(data.message || '');
       } catch {
@@ -61,13 +82,13 @@ export default function Cart({
   useEffect(() => {
     localStorage.setItem(
       'kittyshop-checkout',
-      JSON.stringify({ phone, address, message }),
+      JSON.stringify({ phone, email, address, message }),
     );
-  }, [phone, address, message]);
+  }, [phone, email, address, message]);
 
   async function handleSubmitOrder() {
     if (!canSubmit) {
-      setTouched({ phone: true, address: true });
+      setTouched({ phone: true, email: true, address: true });
       return;
     }
     setStatus('loading');
@@ -80,6 +101,7 @@ export default function Cart({
           items,
           total,
           phone,
+          email,
           address,
           message,
         }),
@@ -93,6 +115,7 @@ export default function Cart({
       setStatus('success');
       localStorage.removeItem('kittyshop-checkout');
       setPhone('');
+      setEmail('');
       setAddress('');
       setMessage('');
       onPurchase();
@@ -173,6 +196,17 @@ export default function Cart({
                     placeholder="Tu telefono"
                   />
                   {phoneError && <span className="carrito-error">{phoneError}</span>}
+                </label>
+                <label>
+                  Email
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    onBlur={() => setTouched((prev) => ({ ...prev, email: true }))}
+                    placeholder="Tu email"
+                  />
+                  {emailError && <span className="carrito-error">{emailError}</span>}
                 </label>
                 <label>
                   Direccion
