@@ -834,6 +834,45 @@ main {
   gap: 0.2rem;
 }
 
+.admin-order-status {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 130px;
+}
+
+.admin-order-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.admin-order-badge.status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.admin-order-badge.status-approved {
+  background: #dbeafe;
+  color: #1e3a8a;
+}
+
+.admin-order-badge.status-sent {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.admin-order-badge.status-cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
 .admin-product-editor {
   margin-top: 1.5rem;
   padding: 1.25rem;

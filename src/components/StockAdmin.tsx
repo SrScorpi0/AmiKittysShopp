@@ -727,21 +727,29 @@ export default function StockAdmin({
                           </td>
                           <td>${order.total}</td>
                           <td>
-                            <select
-                              className="stock-admin-text"
-                              value={orderStatusDraftById[order.id] ?? order.status}
-                              onChange={(event) =>
-                                setOrderStatusDraftById((prev) => ({
-                                  ...prev,
-                                  [order.id]: event.target.value,
-                                }))
-                              }
-                            >
-                              <option value="pending">Pendiente</option>
-                              <option value="approved">Aprobado</option>
-                              <option value="sent">Enviado</option>
-                              <option value="cancelled">Cancelado</option>
-                            </select>
+                            <div className="admin-order-status">
+                              <span className={`admin-order-badge status-${order.status}`}>
+                                {order.status === 'pending' && 'Pendiente'}
+                                {order.status === 'approved' && 'Aprobado'}
+                                {order.status === 'sent' && 'Enviado'}
+                                {order.status === 'cancelled' && 'Cancelado'}
+                              </span>
+                              <select
+                                className="stock-admin-text"
+                                value={orderStatusDraftById[order.id] ?? order.status}
+                                onChange={(event) =>
+                                  setOrderStatusDraftById((prev) => ({
+                                    ...prev,
+                                    [order.id]: event.target.value,
+                                  }))
+                                }
+                              >
+                                <option value="pending">Pendiente</option>
+                                <option value="approved">Aprobado</option>
+                                <option value="sent">Enviado</option>
+                                <option value="cancelled">Cancelado</option>
+                              </select>
+                            </div>
                           </td>
                           <td>
                             <ul className="admin-order-items">
