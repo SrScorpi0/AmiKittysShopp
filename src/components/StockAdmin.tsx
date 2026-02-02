@@ -79,6 +79,7 @@ export default function StockAdmin({
   const [ordersDateTo, setOrdersDateTo] = useState('');
   const [ordersStatusFilter, setOrdersStatusFilter] = useState('all');
   const [orderStatusDraftById, setOrderStatusDraftById] = useState<Record<string, string>>({});
+  const [orderStatusEditingId, setOrderStatusEditingId] = useState<string | null>(null);
 
   const filteredProducts = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -194,6 +195,7 @@ export default function StockAdmin({
       const updated = await response.json();
       setOrders((prev) => prev.map((order) => (order.id === orderId ? updated : order)));
       setOrderStatusDraftById((prev) => ({ ...prev, [orderId]: updated.status }));
+      setOrderStatusEditingId(null);
     } catch (error) {
       setOrdersError(error instanceof Error ? error.message : 'Error al actualizar estado');
     }
@@ -734,21 +736,48 @@ export default function StockAdmin({
                                 {order.status === 'sent' && 'Enviado'}
                                 {order.status === 'cancelled' && 'Cancelado'}
                               </span>
-                              <select
-                                className="stock-admin-text"
-                                value={orderStatusDraftById[order.id] ?? order.status}
-                                onChange={(event) =>
-                                  setOrderStatusDraftById((prev) => ({
-                                    ...prev,
-                                    [order.id]: event.target.value,
-                                  }))
-                                }
-                              >
-                                <option value="pending">Pendiente</option>
-                                <option value="approved">Aprobado</option>
-                                <option value="sent">Enviado</option>
-                                <option value="cancelled">Cancelado</option>
-                              </select>
+                              {orderStatusEditingId === order.id ? (
+                                <div className="admin-order-status-edit">
+                                  <select
+                                    className="stock-admin-text"
+                                    value={orderStatusDraftById[order.id] ?? order.status}
+                                    onChange={(event) =>
+                                      setOrderStatusDraftById((prev) => ({
+                                        ...prev,
+                                        [order.id]: event.target.value,
+                                      }))
+                                    }
+                                  >
+                                    <option value="pending">Pendiente</option>
+                                    <option value="approved">Aprobado</option>
+                                    <option value="sent">Enviado</option>
+                                    <option value="cancelled">Cancelado</option>
+                                  </select>
+                                  <button
+                                    type="button"
+                                    className="stock-admin-add"
+                                    onClick={() => handleUpdateOrderStatus(order.id)}
+                                  >
+                                    Guardar
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="stock-admin-delete"
+                                    onClick={() => setOrderStatusEditingId(null)}
+                                  >
+                                    Cancelar
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  type="button"
+                                  className="admin-icon-button"
+                                  aria-label="Cambiar estado"
+                                  onClick={() => setOrderStatusEditingId(order.id)}
+                                >
+                                  <i className="bi bi-pencil-square" />
+                                </button>
+                              )}
                             </div>
                           </td>
                           <td>
@@ -759,15 +788,6 @@ export default function StockAdmin({
                                 </li>
                               ))}
                             </ul>
-                          </td>
-                          <td>
-                            <button
-                              type="button"
-                              className="stock-admin-add"
-                              onClick={() => handleUpdateOrderStatus(order.id)}
-                            >
-                              Guardar
-                            </button>
                           </td>
                         </tr>
                       ))}
