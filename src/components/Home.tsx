@@ -140,17 +140,17 @@ export default function Home() {
                     Descubre nuestra colección de cerámicas, toallones y detalles únicos.
                   </p>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-row flex-wrap gap-3">
                   <Link
                     to="/productos"
-                    className="bg-[#ff85a1] text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-xl hover:shadow-[#ff85a1]/30 transition-all flex items-center justify-center gap-2"
+                    className="bg-[#ff85a1] text-white px-5 py-3 rounded-xl font-bold text-sm hover:shadow-xl hover:shadow-[#ff85a1]/30 transition-all flex items-center justify-center gap-2"
                   >
                     Ver nuestros productos
                     <i className="bi bi-arrow-right" />
                   </Link>
                   <a
                     href="#nosotros"
-                    className="border-2 border-[#ff85a1]/30 text-[#800e33] px-8 py-4 rounded-xl font-bold text-lg hover:bg-[#ff85a1]/5 transition-colors"
+                    className="border-2 border-[#ff85a1]/30 text-[#800e33] px-5 py-3 rounded-xl font-bold text-sm hover:bg-[#ff85a1]/5 transition-colors"
                   >
                     Contacto
                   </a>
@@ -171,7 +171,7 @@ export default function Home() {
                 Ver todos <i className="bi bi-box-arrow-up-right" />
               </Link>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
               {featuredProducts.map((product) => {
                 const image = product.image || product.images?.[0] || '/img/Logo/Logo.png';
                 return (
@@ -209,9 +209,9 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="nosotros" className="bg-white py-20 lg:py-24">
+        <section id="nosotros" className="bg-white py-12 lg:py-24">
           <div className="max-w-7xl mx-auto px-6 lg:px-20">
-            <div className="bg-[#fff5f7] rounded-[2.5rem] p-8 lg:p-16 border border-[#ff85a1]/10 flex flex-col lg:flex-row gap-16 items-start">
+            <div className="bg-[#fff5f7] rounded-[2.5rem] p-8 lg:p-16 border border-[#ff85a1]/10 flex flex-col lg:flex-row gap-8 lg:gap-16 items-start">
               <div className="lg:w-1/2 flex flex-col gap-6">
                 <h2 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-[#800e33]">
                   Contactanos
