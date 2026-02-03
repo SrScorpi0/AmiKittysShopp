@@ -8,6 +8,8 @@ import ProductDetail from './components/ProductDetail';
 import Home from './components/Home';
 import AdminLogin from './components/AdminLogin';
 import StockAdmin from './components/StockAdmin';
+import CheckoutShipping from './components/CheckoutShipping';
+import CheckoutPayment from './components/CheckoutPayment';
 import { products, type CartItem, type Product, type Category } from './data/products';
 import { categories as initialCategories } from './data/categories';
 
@@ -503,6 +505,14 @@ export default function App() {
             onPurchase={handlePurchase}
           />
         }
+      />
+      <Route
+        path="/carrito/envio"
+        element={<CheckoutShipping items={cartItems} />}
+      />
+      <Route
+        path="/carrito/pago"
+        element={<CheckoutPayment items={cartItems} onPurchase={handlePurchase} />}
       />
       <Route
         path="/admin/login"
