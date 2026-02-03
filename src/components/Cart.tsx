@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import type { CartItem } from '../data/products';
 import LandingHeader from './LandingHeader';
 import LandingFooter from './LandingFooter';
+import LandingMenu from './LandingMenu';
 
 type CartProps = {
   items: CartItem[];
@@ -130,9 +131,12 @@ export default function Cart({
     }
   }
 
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   return (
     <div className="cart-root min-h-screen bg-white text-[#1a1a1a]">
-      <LandingHeader />
+      <LandingMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      <LandingHeader onOpenMenu={() => setIsMenuOpen(true)} />
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-10 sm:px-12 md:pl-24 md:pr-16 py-12">
         {isEmpty && (

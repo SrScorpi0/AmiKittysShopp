@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import type { Product } from '../data/products';
 import LandingHeader from './LandingHeader';
 import LandingFooter from './LandingFooter';
+import LandingMenu from './LandingMenu';
 
 type ProductDetailProps = {
   products: Product[];
@@ -20,6 +21,7 @@ export default function ProductDetail({
   const [isZoomOpen, setIsZoomOpen] = useState(false);
   const [isZoomClosing, setIsZoomClosing] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const touchStartX = useRef<number | null>(null);
   const touchDeltaX = useRef(0);
   const [isImageTransitioning, setIsImageTransitioning] = useState(false);
@@ -93,7 +95,8 @@ export default function ProductDetail({
   if (!product) {
     return (
       <div className="catalog-root min-h-screen bg-white text-[#181114]">
-        <LandingHeader />
+        <LandingMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+        <LandingHeader onOpenMenu={() => setIsMenuOpen(true)} />
         <main className="px-4 md:px-10 lg:px-20 py-12">
           <h2 className="text-2xl font-bold text-[#181114]">Producto no encontrado</h2>
           <p className="text-[#886372] mt-2">El producto que buscas no existe.</p>
@@ -117,7 +120,8 @@ export default function ProductDetail({
 
   return (
     <div className="catalog-root min-h-screen bg-white text-[#181114]">
-      <LandingHeader />
+      <LandingMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      <LandingHeader onOpenMenu={() => setIsMenuOpen(true)} />
 
       <main className="bg-white py-12 px-4 md:px-10 lg:px-20">
         <div className="max-w-[1200px] mx-auto" id="coleccion">
@@ -134,7 +138,7 @@ export default function ProductDetail({
           </nav>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-6 items-center lg:items-start">
               <button
                 type="button"
                 onClick={openZoom}
@@ -254,7 +258,7 @@ export default function ProductDetail({
           <div>
             <h2 className="text-2xl font-bold text-[#181114] mb-6 flex items-center gap-3">
               <span className="material-symbols-outlined text-[#ea3e86]">info</span>
-              Detalles del producto
+              Product Details
             </h2>
             <ul className="space-y-4 text-[#886372] leading-relaxed">
               <li className="flex items-start gap-3">
@@ -263,7 +267,7 @@ export default function ProductDetail({
               </li>
               <li className="flex items-start gap-3">
                 <span className="size-1.5 rounded-full bg-[#ea3e86] mt-2 shrink-0" />
-                <span>Tamaño: {product.size || 'Personalizado'}</span>
+                <span>Tamano: {product.size || 'Personalizado'}</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="size-1.5 rounded-full bg-[#ea3e86] mt-2 shrink-0" />
@@ -278,7 +282,7 @@ export default function ProductDetail({
           <div>
             <h2 className="text-2xl font-bold text-[#181114] mb-6 flex items-center gap-3">
               <span className="material-symbols-outlined text-[#ea3e86]">favorite</span>
-              Cuidados especiales
+              Artisan Care
             </h2>
             <div className="bg-white/70 p-6 rounded-2xl border border-[#ea3e86]/10">
               <p className="text-[#886372] leading-relaxed mb-4">
@@ -302,7 +306,7 @@ export default function ProductDetail({
       <section className="bg-white py-16 px-4 md:px-10 lg:px-20">
         <div className="max-w-[1200px] mx-auto">
           <div className="flex items-center justify-between mb-10">
-            <h2 className="text-3xl font-bold text-[#181114]">Otros Amikittys les gusto...</h2>
+            <h2 className="text-3xl font-bold text-[#181114]">Customers Also Loved</h2>
             <div className="flex gap-2">
               <button
                 type="button"

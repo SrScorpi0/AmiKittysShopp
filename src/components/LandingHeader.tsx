@@ -6,7 +6,7 @@ type LandingHeaderProps = {
 
 export default function LandingHeader({ onOpenMenu }: LandingHeaderProps) {
   return (
-    <header className="sticky top-0 z-50 border-b border-[#ff85a1]/20 bg-white/90 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-[#ff85a1]/20 bg-white/90 backdrop-blur">
       <div className="max-w-7xl mx-auto pl-4 pr-4 lg:pl-10 lg:pr-20 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { products as fallbackProducts, type Product } from '../data/products';
 import LandingHeader from './LandingHeader';
 import LandingFooter from './LandingFooter';
+import LandingMenu from './LandingMenu';
 
 export default function Home() {
   const images = useMemo(
@@ -56,31 +57,7 @@ export default function Home() {
 
   return (
     <div className="landing-root w-full bg-white text-[#800e33]">
-      {isMenuOpen && <div className="menu-overlay" onClick={() => setIsMenuOpen(false)} />}
-      <aside className={`landing-menu${isMenuOpen ? ' landing-menu-visible' : ''}`}>
-        <button
-          className="close-menu"
-          type="button"
-          aria-label="Cerrar menú"
-          onClick={() => setIsMenuOpen(false)}
-        >
-          <i className="bi bi-x" />
-        </button>
-        <nav className="landing-menu-links">
-          <Link to="/" className="landing-menu-link" onClick={() => setIsMenuOpen(false)}>
-            Home
-          </Link>
-          <Link to="/productos" className="landing-menu-link" onClick={() => setIsMenuOpen(false)}>
-            Productos
-          </Link>
-          <a href="#nosotros" className="landing-menu-link" onClick={() => setIsMenuOpen(false)}>
-            Nosotros
-          </a>
-          <a href="#contacto" className="landing-menu-link" onClick={() => setIsMenuOpen(false)}>
-            Contacto
-          </a>
-        </nav>
-      </aside>
+      <LandingMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
       <LandingHeader onOpenMenu={() => setIsMenuOpen(true)} />
 
@@ -211,7 +188,7 @@ export default function Home() {
 
         <section id="nosotros" className="bg-white py-12 lg:py-24">
           <div className="max-w-7xl mx-auto px-6 lg:px-20">
-            <div className="bg-[#fff5f7] rounded-[2.5rem] p-8 lg:p-16 border border-[#ff85a1]/10 flex flex-col lg:flex-row gap-8 lg:gap-16 items-start">
+            <div className="bg-[#fff5f7] rounded-[2.5rem] p-8 lg:p-16 border border-[#ff85a1]/10 flex flex-col lg:flex-row gap-0 lg:gap-16 items-start">
               <div className="lg:w-1/2 flex flex-col gap-6">
                 <h2 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-[#800e33]">
                   Contactanos

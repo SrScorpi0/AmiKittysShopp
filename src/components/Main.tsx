@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import type { Category, Product } from '../data/products';
 import { Link } from 'react-router-dom';
 import LandingHeader from './LandingHeader';
 import LandingFooter from './LandingFooter';
+import LandingMenu from './LandingMenu';
 
 type MainProps = {
   products: Product[];
@@ -37,10 +39,12 @@ export default function Main({
   onSortByChange,
 }: MainProps) {
   const filteredProducts = products;
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <div className="catalog-root min-h-screen bg-[#f8f6f7] text-[#181114]">
-      <LandingHeader />
+      <LandingMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      <LandingHeader onOpenMenu={() => setIsMenuOpen(true)} />
 
       <main>
         <section id="coleccion" className="bg-[#ea3e86]/10 py-12 md:py-20 px-4 md:px-10 lg:px-20">

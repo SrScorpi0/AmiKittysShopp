@@ -1241,7 +1241,7 @@ main {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.4);
-    z-index: 8;
+    z-index: 60;
   }
 
   .landing-menu {
@@ -1257,15 +1257,20 @@ main {
     transform: translateX(110%);
     opacity: 0;
     visibility: hidden;
-    transition: transform 0.25s ease, opacity 0.25s ease;
-    z-index: 9;
+    transition: transform 0.4s ease, opacity 0.4s ease, visibility 0s linear 0.4s;
+    z-index: 70;
     padding: 1.5rem 1.25rem;
+    border-top-left-radius: 1.5rem;
+    border-bottom-left-radius: 1.5rem;
+    pointer-events: none;
   }
 
   .landing-menu-visible {
     transform: translateX(0);
     opacity: 1;
     visibility: visible;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+    pointer-events: auto;
   }
 
   .landing-menu-links {
